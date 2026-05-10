@@ -51,10 +51,15 @@ const listaMissoes = [
     { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 }
 ];
 
-// --- FUNÇÕES DA BASE DE DADOS GLOBAL ---
-function atualizarBancoDeDados() {
-    jogador.fortunaTotal = jogador.saldo + jogador.banco; 
-    db.collection("contas_globais").doc(jogador.nome).set(jogador, { merge: true })
+// --- FUNÇÕES DA BASE DE DADOS GLOBAL ---function atualizarBancoDeDados() {
+    let dadosParaNuvem = { ...jogador };
+    
+    // MÁGICA AQUI: Removemos os pixPendentes do salvamento automático.
+    // Isso impede que o celular do jogador apague sem querer um PIX que acabou de chegar na nuvem!
+    delete dadosParaNuvem.pixPendentes;
+    
+    dadosParaNuvem.fortunaTotal = dadosParaNuvem.saldo + dadosParaNuvem.banco; 
+    db.collection("contas_globais").doc(jogador.nome).set(dadosParaNuvem, { merge: true })
       .catch(e => console.error("Erro Nuvem:", e));
 }
 
