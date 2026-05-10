@@ -476,7 +476,6 @@ window.onload = function() {
 
     if(jogador.nome !== "Visitante") atualizarBancoDeDados();
     verificarADM();
-    
     // RASTREIO DE RECEÇÕES - Deteta ao vivo se tu recebeste PIX ou dinheiro de Máfia
     if(jogador.nome !== "Visitante") {
         db.collection("contas_globais").doc(jogador.nome).onSnapshot((docSnapshot) => {
