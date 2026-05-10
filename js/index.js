@@ -11,7 +11,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let rankingGlobal = [];
-let valorMercadoCripto = 50; // Preço inicial da Moeda
+let valorMercadoCripto = 50; 
 
 // --- SISTEMA LOCAL DO JOGADOR ---
 let saveAntigo = JSON.parse(localStorage.getItem('schnitzel_save_atual')) || {};
@@ -26,7 +26,7 @@ let jogador = {
     inventario: inventarioSeguro, trabalhosFeitos: saveAntigo.trabalhosFeitos || 0, vitoriasCassino: saveAntigo.vitoriasCassino || 0,
     derrotasCassino: saveAntigo.derrotasCassino || 0, tagsDesbloqueadas: tagsSeguras, tagEquipada: saveAntigo.tagEquipada || "",
     banco: saveAntigo.banco || 0, ultimaRenda: saveAntigo.ultimaRenda || Date.now(), pixPendentes: pixSeguros, missoesConcluidas: saveAntigo.missoesConcluidas || 0,
-    cripto: saveAntigo.cripto || 0 // NOVA CARTEIRA CRIPTO
+    cripto: saveAntigo.cripto || 0 
 };
 
 const profissoes = [
@@ -35,7 +35,6 @@ const profissoes = [
     { nvlMinimo: 20, nome: "Magnata", multiplicador: 30 }
 ];
 
-// O NOVO MURAL DE EMPREGOS
 const catalogoTrabalhos = [
     { id: "t1", nome: "Lavar Pratos", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
     { id: "t2", nome: "Entregar Encomendas", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
@@ -61,12 +60,12 @@ const listaMissoes = [
     { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 }
 ];
 
+// --- FUNÇÕES DA BASE DE DADOS GLOBAL ---
 function atualizarBancoDeDados() {
     let dadosParaNuvem = { ...jogador };
     delete dadosParaNuvem.pixPendentes;
     dadosParaNuvem.fortunaTotal = dadosParaNuvem.saldo + dadosParaNuvem.banco + (dadosParaNuvem.cripto * valorMercadoCripto); 
-    db.collection("contas_globais").doc(jogador.nome).set(dadosParaNuvem, { merge: true })
-      .catch(e => console.error("Erro Nuvem:", e));
+    db.collection("contas_globais").doc(jogador.nome).set(dadosParaNuvem, { merge: true }).catch(e => console.error(e));
 }
 
 function salvarDados() { 
@@ -153,7 +152,7 @@ function salvarPerfil() {
                 if (nuvem.senha !== senhaNova) return mostrarNotificacao("Palavra-passe incorreta!", "erro");
                 jogador = nuvem; 
                 if (avatarNovo !== "") jogador.avatar = avatarNovo;
-                if(jogador.cripto === undefined) jogador.cripto = 0; // Previne erro antigo
+                if(jogador.cripto === undefined) jogador.cripto = 0; 
                 salvarDados();
                 mostrarNotificacao(`Bem-vindo de volta, ${nomeNovo}!`, "ouro");
             } else {
@@ -259,8 +258,7 @@ function comprarItem(idItem) {
     mostrarNotificacao(`Adquiriste: ${item.nome}!`, "ouro");
 }
 
-// --- NOVO SISTEMA DE EMPREGOS VARIADOS ---
-    function renderizarEmpregos() {
+function renderizarEmpregos() {
     const mural = document.getElementById('mural-empregos'); if (!mural) return; mural.innerHTML = '';
     
     let agora = Date.now();
@@ -300,23 +298,18 @@ function comprarItem(idItem) {
 
 function executarTrabalho(idTrabalho) {
     if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta no Perfil primeiro!", "erro");
-    
     let trab = catalogoTrabalhos.find(t => t.id === idTrabalho);
     let ganhoBase = Math.floor(Math.random() * (trab.max - trab.min + 1)) + trab.min;
     
     let ganhoTotal = Math.floor(ganhoBase * obterProfissao().multiplicador);
     if (jogador.inventario.includes("licenca")) ganhoTotal *= 2;
 
-    jogador.saldo += ganhoTotal; 
-    jogador.lucroHoje += ganhoTotal; 
-    jogador.acoes += 1;
-    jogador.trabalhosFeitos += 1; 
-    jogador.xp += 25; 
-    jogador.ultimoTrabalho = Date.now();
-    jogador.ultimoTrabalhoInfo = { cd: trab.cd };
+    jogador.saldo += ganhoTotal; jogador.lucroHoje += ganhoTotal; jogador.acoes += 1;
+    jogador.trabalhosFeitos += 1; jogador.xp += 25; 
+    jogador.ultimoTrabalho = Date.now(); jogador.ultimoTrabalhoInfo = { cd: trab.cd };
 
     verificarTags(); verificarNivel(); salvarDados(); atualizarTela(); renderizarEmpregos();
-    mostrarNotificacao(`Trabalhaste como ${trab.nome} e ganhaste S$ ${ganhoTotal.toLocaleString('pt-PT')}!`, 'sucesso'); 
+    mostrarNotificacao(`Trabalhaste e ganhaste S$ ${ganhoTotal.toLocaleString('pt-PT')}!`, 'sucesso'); 
     atualizarMissoesCelular(); 
 }
 
@@ -363,6 +356,8 @@ function verificarADM() {
         else { appAdm.style.display = "none"; }
     }
 }
+
+// --- COMANDOS DE MODERAÃ‡ÃƒO GLOBAL (ADM) ---
 function admInjetarDinheiro() {
     jogador.saldo += 1000000; salvarDados(); atualizarTela();
     mostrarNotificacao("HACK: + S$ 1.000.000 injetados na conta!", "ouro");
@@ -371,56 +366,39 @@ function admInjetarDinheiro() {
 function admDesbloquearTags() {
     listaTags.forEach(t => { if (!jogador.tagsDesbloqueadas.includes(t.id)) jogador.tagsDesbloqueadas.push(t.id); });
     salvarDados(); atualizarTela(); mostrarNotificacao("HACK: Todas as Tags desbloqueadas!", "ouro");
+}
 
-// --- COMANDOS DE MODERAÇÃO GLOBAL (ADM) ---
 function admDarDinheiro() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-    
     let valor = prompt(`Quanto desejas injetar no BANCO de ${alvo}?`);
     if(!valor || isNaN(parseInt(valor))) return;
 
     db.collection("contas_globais").doc(alvo).get().then(doc => {
-        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
-        
-        db.collection("contas_globais").doc(alvo).update({
-            banco: firebase.firestore.FieldValue.increment(parseInt(valor))
-        }).then(() => {
-            mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso");
-            document.getElementById('adm-alvo').value = '';
-        });
+        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
+        db.collection("contas_globais").doc(alvo).update({ banco: firebase.firestore.FieldValue.increment(parseInt(valor)) })
+        .then(() => { mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso"); document.getElementById('adm-alvo').value = ''; });
     });
 }
 
 function admDarNivel() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-
     db.collection("contas_globais").doc(alvo).get().then(doc => {
-        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
-        
-        db.collection("contas_globais").doc(alvo).update({
-            nivel: firebase.firestore.FieldValue.increment(1)
-        }).then(() => {
-            mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro");
-        });
+        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
+        db.collection("contas_globais").doc(alvo).update({ nivel: firebase.firestore.FieldValue.increment(1) })
+        .then(() => { mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro"); });
     });
 }
 
 function admZerarBanco() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-
-    if(confirm(`ATENÇÃO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
+    if(confirm(`ATENÃ‡ÃƒO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
         db.collection("contas_globais").doc(alvo).get().then(doc => {
-            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
-            
-            db.collection("contas_globais").doc(alvo).update({
-                banco: 0
-            }).then(() => {
-                mostrarNotificacao(`Banco de ${alvo} zerado com sucesso! Máfia implacável.`, "erro");
-                document.getElementById('adm-alvo').value = '';
-            });
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
+            db.collection("contas_globais").doc(alvo).update({ banco: 0 })
+            .then(() => { mostrarNotificacao(`Banco de ${alvo} zerado com sucesso!`, "erro"); document.getElementById('adm-alvo').value = ''; });
         });
     }
 }
@@ -451,16 +429,16 @@ function atualizarTelaBanco() {
 function depositar() {
     let input = prompt("Quanto desejas depositar? (Digita 'tudo' para depositar tudo)"); if (!input) return;
     let valor = input.toLowerCase() === 'tudo' ? jogador.saldo : parseInt(input);
-    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor inválido!", "info");
-    if (valor > jogador.saldo) return mostrarNotificacao("Não tens tudo isso na carteira!", "info");
+    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor invÃ¡lido!", "info");
+    if (valor > jogador.saldo) return mostrarNotificacao("NÃ£o tens tudo isso na carteira!", "info");
     jogador.saldo -= valor; jogador.banco += valor; salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`Depositado S$ ${valor}!`, "sucesso");
 }
 
 function sacar() {
     let input = prompt("Quanto desejas sacar? (Digita 'tudo' para sacar tudo)"); if (!input) return;
     let valor = input.toLowerCase() === 'tudo' ? jogador.banco : parseInt(input);
-    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor inválido!", "info");
-    if (valor > jogador.banco) return mostrarNotificacao("Não tens tudo isso no banco!", "info");
+    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor invÃ¡lido!", "info");
+    if (valor > jogador.banco) return mostrarNotificacao("NÃ£o tens tudo isso no banco!", "info");
     jogador.banco -= valor; jogador.saldo += valor; salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`Sacado S$ ${valor}!`, "sucesso");
 }
 
@@ -471,48 +449,38 @@ function enviarPix() {
     
     if (recebedor === "" || isNaN(valor) || valor <= 0) return mostrarNotificacao("Preenche os dados corretamente!", "info");
     if (valor > jogador.saldo) return mostrarNotificacao("Saldo da carteira insuficiente!", "erro");
-    if (recebedor.toLowerCase() === jogador.nome.toLowerCase()) return mostrarNotificacao("Não podes fazer PIX a ti mesmo!", "info");
+    if (recebedor.toLowerCase() === jogador.nome.toLowerCase()) return mostrarNotificacao("NÃ£o podes fazer PIX a ti mesmo!", "info");
 
     db.collection("contas_globais").doc(recebedor).get().then((docSnapshot) => {
-        if (!docSnapshot.exists) { 
-            return mostrarNotificacao(`Conta "${recebedor}" não existe! Verifica se tem letras maiúsculas/minúsculas.`, "erro"); 
-        }
-        
+        if (!docSnapshot.exists) { return mostrarNotificacao(`Conta "${recebedor}" nÃ£o existe!`, "erro"); }
         let dadosAlvo = docSnapshot.data();
         let pendentes = dadosAlvo.pixPendentes || [];
         pendentes.push({ de: jogador.nome, valor: valor });
-
         db.collection("contas_globais").doc(recebedor).update({ pixPendentes: pendentes }).then(() => {
-            jogador.saldo -= valor;
-            salvarDados(); atualizarTela(); atualizarTelaBanco();
+            jogador.saldo -= valor; salvarDados(); atualizarTela(); atualizarTelaBanco();
             document.getElementById('pix-nome').value = ''; document.getElementById('pix-valor').value = '';
             mostrarNotificacao(`PIX de S$ ${valor} enviado para ${recebedor}!`, "sucesso");
         });
-    }).catch(e => mostrarNotificacao("Erro de ligação à Nuvem!", "erro"));
+    }).catch(e => mostrarNotificacao("Erro de ligaÃ§Ã£o Ã  Nuvem!", "erro"));
 }
 
 function resgatarPix(index) {
     let pix = jogador.pixPendentes[index]; 
     jogador.saldo += pix.valor; 
     jogador.pixPendentes.splice(index, 1); 
-    
     db.collection("contas_globais").doc(jogador.nome).update({ pixPendentes: jogador.pixPendentes });
-    salvarDados(); atualizarTela(); atualizarTelaBanco(); 
-    mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
+    salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
 }
 
-// --- SISTEMA DE CRIPTOMOEDAS ---
 setInterval(() => {
-    // Oscilação do Mercado Cripto
-    let variacao = Math.floor(Math.random() * 41) - 20; // -20 a +20
+    let variacao = Math.floor(Math.random() * 41) - 20; 
     valorMercadoCripto += variacao;
-    if (valorMercadoCripto < 5) valorMercadoCripto = 5; // Proteção contra falência
-    if (valorMercadoCripto > 300) valorMercadoCripto -= 100; // Bolha estoura
+    if (valorMercadoCripto < 5) valorMercadoCripto = 5; 
+    if (valorMercadoCripto > 300) valorMercadoCripto -= 100; 
 
     let appCriptoAtivo = document.getElementById('app-cripto');
     if (appCriptoAtivo && appCriptoAtivo.classList.contains('ativa')) atualizarTelaCripto();
 
-    // Rendimento Banco
     let data = new Date(); let horas = data.getHours().toString().padStart(2, '0'); let min = data.getMinutes().toString().padStart(2, '0');
     let elHora = document.getElementById('hora-celular'); if(elHora) elHora.innerText = `${horas}:${min}`;
     let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
@@ -526,7 +494,7 @@ setInterval(() => {
         if (appBancoAtivo && appBancoAtivo.classList.contains('ativa')) atualizarTelaBanco();
         mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
     }
-}, 10000); // 10 segundos!
+}, 10000); 
 
 function atualizarTelaCripto() {
     let displayPreco = document.getElementById('preco-cripto-tela');
@@ -541,12 +509,10 @@ function atualizarTelaCripto() {
 function comprarCripto() {
     if(jogador.nome === "Visitante") return mostrarNotificacao("Cria conta primeiro!", "erro");
     let qtd = parseInt(document.getElementById('qtd-cripto').value);
-    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade inválida!", "info");
+    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade invÃ¡lida!", "info");
     let custoTotal = qtd * valorMercadoCripto;
     if(jogador.saldo < custoTotal) return mostrarNotificacao(`Precisas de S$ ${custoTotal}!`, "erro");
-
-    jogador.saldo -= custoTotal;
-    jogador.cripto += qtd;
+    jogador.saldo -= custoTotal; jogador.cripto += qtd;
     salvarDados(); atualizarTela(); atualizarTelaCripto();
     mostrarNotificacao(`Compraste ${qtd} SNC por S$ ${custoTotal}!`, "sucesso");
     document.getElementById('qtd-cripto').value = '';
@@ -555,12 +521,10 @@ function comprarCripto() {
 function venderCripto() {
     if(jogador.nome === "Visitante") return;
     let qtd = parseInt(document.getElementById('qtd-cripto').value);
-    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade inválida!", "info");
-    if(jogador.cripto < qtd) return mostrarNotificacao("Não tens essa quantidade de SNC!", "erro");
-
+    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade invÃ¡lida!", "info");
+    if(jogador.cripto < qtd) return mostrarNotificacao("NÃ£o tens essa quantidade de SNC!", "erro");
     let ganhoTotal = qtd * valorMercadoCripto;
-    jogador.cripto -= qtd;
-    jogador.saldo += ganhoTotal;
+    jogador.cripto -= qtd; jogador.saldo += ganhoTotal;
     salvarDados(); atualizarTela(); atualizarTelaCripto();
     mostrarNotificacao(`Vendeste ${qtd} SNC por S$ ${ganhoTotal}!`, "ouro");
     document.getElementById('qtd-cripto').value = '';
@@ -575,7 +539,7 @@ function atualizarMissoesCelular() {
         let jaResgatou = progresso > m.objetivo + 1000; 
         let btn = `<button disabled style="background:#555; color:#888; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px;">Em Progresso</button>`;
         if (progresso >= m.objetivo && !jaResgatou) btn = `<button onclick="resgatarMissao('${m.id}')" style="background:#00ff88; color:black; font-weight:bold; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px; cursor:pointer;">Resgatar S$ ${m.recom}</button>`;
-        else if (jaResgatou) btn = `<button disabled style="background:#333; color:#555; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px;">Concluída</button>`;
+        else if (jaResgatou) btn = `<button disabled style="background:#333; color:#555; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px;">ConcluÃ­da</button>`;
         let div = document.createElement('div'); div.className = 'item-missao';
         div.innerHTML = `<h4 style="color: var(--texto);">${m.texto}</h4><p style="color: var(--texto-apagado); font-size: 0.8rem; margin-bottom: 5px;">Recompensa: S$ ${m.recom}</p><div style="background: #333; height: 10px; border-radius: 5px; overflow:hidden;"><div style="background: var(--rosa); height: 100%; width: ${pct}%;"></div></div><p style="text-align:right; font-size: 0.7rem; color: var(--ouro);">${jaResgatou ? m.objetivo : progresso}/${m.objetivo}</p>${btn}`;
         listaHTML.appendChild(div);
@@ -585,7 +549,7 @@ function atualizarMissoesCelular() {
 function resgatarMissao(idMissao) {
     let missao = listaMissoes.find(m => m.id === idMissao); jogador.saldo += missao.recom;
     if (missao.tipo === "trabalho") jogador.trabalhosFeitos += 1000; if (missao.tipo === "vitoria") jogador.vitoriasCassino += 1000;
-    salvarDados(); atualizarTela(); atualizarMissoesCelular(); mostrarNotificacao(`Missão Concluída! +S$ ${missao.recom}`, "ouro");
+    salvarDados(); atualizarTela(); atualizarMissoesCelular(); mostrarNotificacao(`MissÃ£o ConcluÃ­da! +S$ ${missao.recom}`, "ouro");
 }
 
 window.onload = function() {
@@ -629,5 +593,3 @@ window.onload = function() {
         });
     }
 };
-
-
