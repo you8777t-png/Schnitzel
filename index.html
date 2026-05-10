@@ -6,7 +6,6 @@
     <title>Schnitzel - Economia</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
 </head>
@@ -51,11 +50,12 @@
         </section>
 
         <section id="tela-trabalhar" class="tela">
-            <div class="cartao-saldo glass">
-                <h2 class="gold-text"><i class="fa-solid fa-hammer"></i> Central de Trabalho</h2>
-                <p style="margin-top: 10px; color: var(--texto-apagado);">Gera receita para o teu império.</p>
-                <button id="btn-trabalhar" class="btn-primario" onclick="trabalhar()">Trabalhar Agora</button>
+            <div class="cartao-saldo glass" style="margin-bottom: 15px;">
+                <h2 class="gold-text"><i class="fa-solid fa-hammer"></i> Central de Empregos</h2>
+                <p style="margin-top: 5px; color: var(--texto-apagado); font-size: 0.85rem;">Escolhe um serviço. Sobe de Nível para desbloquear trabalhos melhores.</p>
             </div>
+            <div id="mural-empregos" class="grid-acoes" style="grid-template-columns: 1fr;">
+                </div>
         </section>
 
         <section id="tela-cassino" class="tela">
@@ -85,7 +85,7 @@
                     <i class="fa-solid fa-mobile-screen-button" style="font-size: 2rem; color: var(--rosa);"></i>
                     <span>Abrir Smartphone</span>
                 </h2>
-                <p style="color: var(--texto-apagado); margin-top: 5px;">Acede ao Banco Central e Missões Diárias</p>
+                <p style="color: var(--texto-apagado); margin-top: 5px;">Acede ao Banco Central e Criptomoedas</p>
                 <div id="notificacao-celular" class="notificacao-ponto" style="display:none;">!</div>
             </div>
 
@@ -155,7 +155,10 @@
                     <div class="app-icone" onclick="abrirApp('app-missoes')" style="background: linear-gradient(45deg, #ff2a6d, #e63946);">
                         <i class="fa-solid fa-scroll"></i>
                         <span class="app-nome">Quests</span>
-                        <div id="notif-missoes" class="notificacao-app" style="display:none;">!</div>
+                    </div>
+                    <div class="app-icone" onclick="abrirApp('app-cripto')" style="background: linear-gradient(45deg, #b8860b, #ffd700);">
+                        <i class="fa-brands fa-bitcoin" style="color: black;"></i>
+                        <span class="app-nome">Cripto</span>
                     </div>
                     <div id="app-icone-adm" class="app-icone" onclick="abrirApp('app-adm')" style="display: none; background: linear-gradient(45deg, #500, #ff0000);">
                         <i class="fa-solid fa-user-tie"></i>
@@ -182,6 +185,26 @@
                     <button class="btn-primario" style="margin-top: 0; padding: 10px; font-size: 0.9rem; width: 100%; background: #00ff88; color: black; border:none;" onclick="enviarPix()">Enviar PIX</button>
                 </div>
                 <div id="area-resgate-pix" style="margin-top: 15px;"></div>
+            </div>
+
+            <div id="app-cripto" class="app-tela scroll-app">
+                <h3 style="text-align: center; color: var(--ouro); margin-bottom: 15px;"><i class="fa-brands fa-bitcoin"></i> Mercado Cripto</h3>
+                <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px solid var(--ouro);">
+                    <p style="color: var(--texto-apagado); font-size: 0.8rem;">Valor Atual da SchnitzelCoin (SNC)</p>
+                    <h1 id="preco-cripto-tela" style="color: #00ff88; margin: 10px 0; font-size: 2.5rem; text-shadow: 0 0 10px #00ff88;">S$ 50</h1>
+                    <p style="color: var(--texto-apagado); font-size: 0.7rem;">O mercado oscila a cada 10 segundos!</p>
+                </div>
+                
+                <div style="background: rgba(255,215,0,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center;">
+                    <p style="color: var(--texto); margin-bottom: 5px;">A tua Carteira Cripto</p>
+                    <h3 class="gold-text"><span id="minhas-criptos">0</span> SNC</h3>
+                </div>
+
+                <input type="number" id="qtd-cripto" class="input-dark" style="padding: 10px; font-size: 0.9rem; margin-bottom: 10px;" placeholder="Quantidade (Ex: 10)">
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primario" style="background: #00ff88; color: black; border:none; margin-top:0; padding: 10px;" onclick="comprarCripto()">Comprar</button>
+                    <button class="btn-primario" style="background: var(--vermelho); border:none; margin-top:0; padding: 10px;" onclick="venderCripto()">Vender</button>
+                </div>
             </div>
 
             <div id="app-missoes" class="app-tela scroll-app">
