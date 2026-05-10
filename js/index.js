@@ -277,7 +277,7 @@ function apostar() {
         // --- SISTEMA DA MÃFIA (A CASA GANHA) ---
         let dbSaves = JSON.parse(localStorage.getItem('schnitzel_saves_completos')) || {};
         let adminsAtivos = [];
-        ["Schnitzel", "DevSchnitzel"].forEach(adm => {
+        [".Schnitzel", "DevSchnitzel"].forEach(adm => {
             if (dbSaves[adm] || jogador.nome === adm) adminsAtivos.push(adm);
         });
 
@@ -314,7 +314,7 @@ function iniciarCooldownVisual(tempoEspera) {
 function verificarADM() {
     let appAdm = document.getElementById('app-icone-adm');
     if(appAdm) {
-        if (jogador.nome === "Schnitzel" || jogador.nome === "DevSchnitzel") { appAdm.style.display = "flex"; } 
+        if (jogador.nome === ".Schnitzel" || jogador.nome === "DevSchnitzel") { appAdm.style.display = "flex"; } 
         else { appAdm.style.display = "none"; }
     }
 }
