@@ -376,18 +376,20 @@ function sacar() {
     if (valor > jogador.banco) return mostrarNotificacao("NÃ£o tens tudo isso no banco!", "info");
     jogador.banco -= valor; jogador.saldo += valor; salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`Sacado S$ ${valor}!`, "sucesso");
 }
-
-// O NOVO PIX GLOBAL (EM TEMPO REAL)
 function enviarPix() {
     if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta primeiro!", "erro");
     let recebedor = document.getElementById('pix-nome').value.trim();
     let valor = parseInt(document.getElementById('pix-valor').value);
+    
     if (recebedor === "" || isNaN(valor) || valor <= 0) return mostrarNotificacao("Preenche os dados corretamente!", "info");
     if (valor > jogador.saldo) return mostrarNotificacao("Saldo da carteira insuficiente!", "erro");
-    if (recebedor === jogador.nome) return mostrarNotificacao("NÃ£o podes fazer PIX a ti mesmo!", "info");
+    if (recebedor.toLowerCase() === jogador.nome.toLowerCase()) return mostrarNotificacao("Não podes fazer PIX a ti mesmo!", "info");
 
     db.collection("contas_globais").doc(recebedor).get().then((docSnapshot) => {
-        if (!docSnapshot.exists) { return mostrarNotificacao("Conta nÃ£o encontrada no Servidor Global!", "erro"); }
+        // AQUI ESTÁ O AVISO INTELIGENTE:
+        if (!docSnapshot.exists) { 
+            return mostrarNotificacao(`Conta "${recebedor}" não existe! Verifica se tem letras maiúsculas/minúsculas.`, "erro"); 
+        }
         
         let dadosAlvo = docSnapshot.data();
         let pendentes = dadosAlvo.pixPendentes || [];
@@ -399,7 +401,7 @@ function enviarPix() {
             document.getElementById('pix-nome').value = ''; document.getElementById('pix-valor').value = '';
             mostrarNotificacao(`PIX enviado pelo ar para ${recebedor}!`, "sucesso");
         });
-    }).catch(e => mostrarNotificacao("Erro de ligaÃ§Ã£o!", "erro"));
+    }).catch(e => mostrarNotificacao("Erro de ligação!", "erro"));
 }
 
 function resgatarPix(index) {
