@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schnitzel - Economia</title>
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
     
@@ -27,10 +30,9 @@
     </header>
 
     <main class="conteudo">
-        
         <section id="tela-home" class="tela ativa">
             <div class="cartao-saldo glass">
-                <p>Patrimônio Total (Carteira)</p>
+                <p>Património Total (Carteira)</p>
                 <h1 class="gold-text"><i class="fa-solid fa-coins"></i> <span id="saldo-jogador">0</span></h1>
                 <p class="lucro-texto" style="color: var(--roxo-claro); margin-top:5px;"><i class="fa-solid fa-building-columns"></i> Banco: S$ <span id="saldo-banco-home">0</span></p>
             </div>
@@ -38,7 +40,7 @@
                 <div class="acao-card glass" onclick="navegar(document.getElementById('nav-ranking'), 'tela-ranking')" style="cursor:pointer;">
                     <i class="fa-solid fa-globe pink-text"></i>
                     <h3>Ver Ranking</h3>
-                    <p>Global</p>
+                    <p>Global (Nuvem)</p>
                 </div>
                 <div class="acao-card glass">
                     <i class="fa-solid fa-trophy purple-text"></i>
@@ -51,17 +53,17 @@
         <section id="tela-trabalhar" class="tela">
             <div class="cartao-saldo glass">
                 <h2 class="gold-text"><i class="fa-solid fa-hammer"></i> Central de Trabalho</h2>
-                <p style="margin-top: 10px; color: var(--texto-apagado);">Gere receita para o seu império.</p>
+                <p style="margin-top: 10px; color: var(--texto-apagado);">Gera receita para o teu império.</p>
                 <button id="btn-trabalhar" class="btn-primario" onclick="trabalhar()">Trabalhar Agora</button>
             </div>
         </section>
 
         <section id="tela-cassino" class="tela">
             <div class="cartao-saldo glass">
-                <h2 class="pink-text"><i class="fa-solid fa-dice"></i> Cassino de Luxo</h2>
-                <p style="margin-top: 10px; color: var(--texto-apagado);">Aposte seu patrimônio. A casa tem 55% de chance de vitória.</p>
+                <h2 class="pink-text"><i class="fa-solid fa-dice"></i> Casino de Luxo</h2>
+                <p style="margin-top: 10px; color: var(--texto-apagado);">Aposta o teu património. O dinheiro perdido vai para a Máfia ADM.</p>
                 <div class="area-aposta">
-                    <input type="number" id="valor-aposta" class="input-dark" placeholder="Digite o valor (Ex: 100)">
+                    <input type="number" id="valor-aposta" class="input-dark" placeholder="Digita o valor (Ex: 100)">
                     <button class="btn-primario btn-rosa" onclick="apostar()">
                         <i class="fa-solid fa-coins"></i> Rolar Dados
                     </button>
@@ -78,39 +80,39 @@
         </section>
 
         <section id="tela-perfil" class="tela">
-            
             <div class="cartao-saldo glass" style="background: rgba(107, 33, 168, 0.2); border-color: var(--rosa); cursor: pointer; padding: 20px;" onclick="abrirCelular()">
                 <h2 style="color: var(--texto); display: flex; align-items: center; justify-content: center; gap: 10px;">
                     <i class="fa-solid fa-mobile-screen-button" style="font-size: 2rem; color: var(--rosa);"></i>
                     <span>Abrir Smartphone</span>
                 </h2>
-                <p style="color: var(--texto-apagado); margin-top: 5px;">Acesse o Banco Central e Missões Diárias</p>
+                <p style="color: var(--texto-apagado); margin-top: 5px;">Acede ao Banco Central e Missões Diárias</p>
                 <div id="notificacao-celular" class="notificacao-ponto" style="display:none;">!</div>
             </div>
 
             <div class="cartao-saldo glass" style="margin-top: 20px;">
-                <h2 class="gold-text"><i class="fa-solid fa-id-card"></i> Seu Perfil</h2>
+                <h2 class="gold-text"><i class="fa-solid fa-cloud"></i> Conta Global</h2>
+                <p style="margin-top: 5px; font-size: 0.8rem; color: #00ff88;">Ligado aos Satélites Schnitzel</p>
                 <div class="area-aposta" style="margin-top: 15px;">
-                    <input type="text" id="edit-nome" class="input-dark" placeholder="Nome de Usuário">
+                    <input type="text" id="edit-nome" class="input-dark" placeholder="Nome de Utilizador">
                     <input type="password" id="edit-senha" class="input-dark" placeholder="Senha de Segurança">
                     <input type="text" id="edit-avatar" class="input-dark" placeholder="URL da Foto (Link da imagem)">
-                    <button class="btn-primario" onclick="salvarPerfil()">Atualizar Dados / Entrar</button>
+                    <button class="btn-primario" onclick="salvarPerfil()">Guardar / Entrar na Nuvem</button>
                 </div>
             </div>
 
-            <h3 style="margin: 20px 0 10px 0; color: var(--texto-apagado);">Suas Tags (Títulos)</h3>
+            <h3 style="margin: 20px 0 10px 0; color: var(--texto-apagado);">As tuas Tags (Títulos)</h3>
             <select id="select-tag" class="input-dark" style="margin-bottom: 20px; text-align: left;" onchange="equiparTag(this.value)">
                 <option value="">-- Nenhuma Tag --</option>
             </select>
 
-            <h3 style="margin: 0 0 10px 0; color: var(--texto-apagado);">Seu Cofre (Itens)</h3>
+            <h3 style="margin: 0 0 10px 0; color: var(--texto-apagado);">O teu Cofre (Itens)</h3>
             <div id="lista-inventario" class="grid-acoes" style="grid-template-columns: 1fr;"></div>
         </section>
 
         <section id="tela-ranking" class="tela">
             <div class="cartao-saldo glass">
-                <h2 class="gold-text"><i class="fa-solid fa-ranking-star"></i> Ranking do Servidor</h2>
-                <p style="margin-top: 10px; color: var(--texto-apagado);">Os maiores magnatas do universo Schnitzel.</p>
+                <h2 class="gold-text"><i class="fa-solid fa-ranking-star"></i> Ranking Mundial</h2>
+                <p style="margin-top: 10px; color: var(--texto-apagado);">Atualizado em Tempo Real.</p>
             </div>
             <div id="lista-ranking" class="area-ranking"></div>
         </section>
@@ -125,7 +127,7 @@
             <i class="fa-solid fa-briefcase"></i><span>Trabalho</span>
         </div>
         <div class="nav-item" onclick="navegar(this, 'tela-cassino')">
-            <i class="fa-solid fa-dice"></i><span>Cassino</span>
+            <i class="fa-solid fa-dice"></i><span>Casino</span>
         </div>
         <div class="nav-item" onclick="navegar(this, 'tela-loja')">
             <i class="fa-solid fa-store"></i><span>Loja</span>
@@ -138,7 +140,6 @@
 
     <div id="modal-celular" class="modal-fundo">
         <div class="aparelho-celular">
-            
             <div class="celular-status">
                 <span id="hora-celular">12:00</span>
                 <span><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-battery-full"></i></span>
@@ -165,25 +166,21 @@
 
             <div id="app-banco" class="app-tela scroll-app">
                 <h3 style="text-align: center; color: var(--ouro); margin-bottom: 15px;"><i class="fa-solid fa-building-columns"></i> Banco Central</h3>
-                
                 <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
                     <p style="color: var(--texto-apagado); font-size: 0.8rem;">Saldo Bancário (Rende 2%/min)</p>
                     <h2 class="gold-text">S$ <span id="tela-banco-saldo">0</span></h2>
                     <p style="color: var(--texto-apagado); font-size: 0.8rem; margin-top:5px;">Carteira: S$ <span id="tela-banco-carteira">0</span></p>
                 </div>
-
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button class="btn-primario" style="margin-top: 0; padding: 10px; font-size: 0.9rem;" onclick="depositar()">Depositar</button>
                     <button class="btn-primario btn-rosa" style="margin-top: 0; padding: 10px; font-size: 0.9rem;" onclick="sacar()">Sacar</button>
                 </div>
-
                 <div style="background: rgba(107,33,168,0.3); padding: 15px; border-radius: 10px; border: 1px solid var(--roxo-claro);">
-                    <h4 style="margin-bottom: 10px;"><i class="fa-brands fa-pix"></i> Fazer PIX</h4>
+                    <h4 style="margin-bottom: 10px;"><i class="fa-brands fa-pix"></i> PIX Global</h4>
                     <input type="text" id="pix-nome" class="input-dark" style="padding: 10px; font-size: 0.9rem; margin-bottom: 10px;" placeholder="Nome da Conta (Destino)">
                     <input type="number" id="pix-valor" class="input-dark" style="padding: 10px; font-size: 0.9rem; margin-bottom: 10px;" placeholder="Valor (S$)">
                     <button class="btn-primario" style="margin-top: 0; padding: 10px; font-size: 0.9rem; width: 100%; background: #00ff88; color: black; border:none;" onclick="enviarPix()">Enviar PIX</button>
                 </div>
-
                 <div id="area-resgate-pix" style="margin-top: 15px;"></div>
             </div>
 
@@ -195,7 +192,7 @@
             <div id="app-adm" class="app-tela scroll-app">
                 <h3 style="text-align: center; color: var(--vermelho); margin-bottom: 15px;"><i class="fa-solid fa-terminal"></i> Modo Deus</h3>
                 <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px solid var(--vermelho);">
-                    <p style="color: var(--texto-apagado); font-size: 0.8rem;">Painel de Controle Administrativo</p>
+                    <p style="color: var(--texto-apagado); font-size: 0.8rem;">Painel de Controlo Administrativo Global</p>
                 </div>
                 <button class="btn-primario" style="background: var(--vermelho); border: 1px solid white; margin-bottom: 10px;" onclick="admInjetarDinheiro()">
                     <i class="fa-solid fa-sack-dollar"></i> Injetar S$ 1 Milhão
@@ -203,15 +200,10 @@
                 <button class="btn-primario" style="background: #333; border: 1px solid var(--ouro); margin-bottom: 10px;" onclick="admDesbloquearTags()">
                     <i class="fa-solid fa-unlock-keyhole"></i> Desbloquear Tags
                 </button>
-                <button class="btn-primario" style="background: black; border: 1px solid var(--texto-apagado);" onclick="admResetarRanking()">
-                    <i class="fa-solid fa-skull"></i> Resetar Servidor (Ranking)
-                </button>
             </div>
-
             <div class="celular-home-btn" onclick="botaoHomeCelular()"></div>
         </div>
     </div>
-
     <div id="container-notificacoes"></div>
 
     <script src="js/index.js"></script>
