@@ -349,7 +349,6 @@ function verificarNotificacoesCelular() {
     let notifGeral = document.getElementById('notificacao-celular'); if(notifGeral) notifGeral.style.display = temPix ? 'flex' : 'none';
     let notifBanco = document.getElementById('notif-banco'); if(notifBanco) notifBanco.style.display = temPix ? 'flex' : 'none';
 }
-
 function atualizarTelaBanco() {
     document.getElementById('tela-banco-saldo').innerText = jogador.banco.toLocaleString('pt-PT');
     document.getElementById('tela-banco-carteira').innerText = jogador.saldo.toLocaleString('pt-PT');
@@ -358,4 +357,157 @@ function atualizarTelaBanco() {
         let h4 = document.createElement('h4'); h4.innerHTML = '<i class="fa-solid fa-bell"></i> PIX Recebidos da Nuvem'; h4.style.marginBottom = "10px"; areaPix.appendChild(h4);
         jogador.pixPendentes.forEach((pix, index) => {
             let div = document.createElement('div'); div.style.cssText = "background: rgba(0,255,136,0.2); border: 1px solid #00ff88; padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
-            div.innerHTML = `<div><span style="font-size: 0.7rem; color: #adb5bd;">De: ${pix.de}</span><br><strong>S$ ${pix.valor}</strong></div><button c
+            div.innerHTML = `<div><span style="font-size: 0.7rem; color: #adb5bd;">De: ${pix.de}</span><br><strong>S$ ${pix.valor}</strong></div><button class="btn-primario" style="margin:0; padding: 5px 10px; font-size: 0.8rem; background: #00ff88; color: black; border: none;" onclick="resgatarPix(${index})">Resgatar</button>`;
+            areaPix.appendChild(div);
+        });
+    }
+}
+
+function depositar() {
+    let input = prompt("Quanto desejas depositar? (Digita 'tudo' para depositar tudo)"); if (!input) return;
+    let valor = input.toLowerCase() === 'tudo' ? jogador.saldo : parseInt(input);
+    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor inválido!", "info");
+    if (valor > jogador.saldo) return mostrarNotificacao("Não tens tudo isso na carteira!", "info");
+    jogador.saldo -= valor; jogador.banco += valor; salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`Depositado S$ ${valor}!`, "sucesso");
+}
+
+function sacar() {
+    let input = prompt("Quanto desejas sacar? (Digita 'tudo' para sacar tudo)"); if (!input) return;
+    let valor = input.toLowerCase() === 'tudo' ? jogador.banco : parseInt(input);
+    if (isNaN(valor) || valor <= 0) return mostrarNotificacao("Valor inválido!", "info");
+    if (valor > jogador.banco) return mostrarNotificacao("Não tens tudo isso no banco!", "info");
+    jogador.banco -= valor; jogador.saldo += valor; salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`Sacado S$ ${valor}!`, "sucesso");
+}
+
+function enviarPix() {
+    if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta primeiro!", "erro");
+    let recebedor = document.getElementById('pix-nome').value.trim();
+    let valor = parseInt(document.getElementById('pix-valor').value);
+    
+    if (recebedor === "" || isNaN(valor) || valor <= 0) return mostrarNotificacao("Preenche os dados corretamente!", "info");
+    if (valor > jogador.saldo) return mostrarNotificacao("Saldo da carteira insuficiente!", "erro");
+    if (recebedor.toLowerCase() === jogador.nome.toLowerCase()) return mostrarNotificacao("Não podes fazer PIX a ti mesmo!", "info");
+
+    db.collection("contas_globais").doc(recebedor).get().then((docSnapshot) => {
+        if (!docSnapshot.exists) { 
+            return mostrarNotificacao(`Conta "${recebedor}" não existe! Verifica se tem letras maiúsculas/minúsculas.`, "erro"); 
+        }
+        
+        let dadosAlvo = docSnapshot.data();
+        let pendentes = dadosAlvo.pixPendentes || [];
+        pendentes.push({ de: jogador.nome, valor: valor });
+
+        db.collection("contas_globais").doc(recebedor).update({ pixPendentes: pendentes }).then(() => {
+            jogador.saldo -= valor;
+            salvarDados(); atualizarTela(); atualizarTelaBanco();
+            document.getElementById('pix-nome').value = ''; document.getElementById('pix-valor').value = '';
+            mostrarNotificacao(`PIX de S$ ${valor} enviado para ${recebedor}!`, "sucesso");
+        });
+    }).catch(e => mostrarNotificacao("Erro de ligação à Nuvem!", "erro"));
+}
+
+function resgatarPix(index) {
+    let pix = jogador.pixPendentes[index]; 
+    jogador.saldo += pix.valor; 
+    jogador.pixPendentes.splice(index, 1); 
+    
+    db.collection("contas_globais").doc(jogador.nome).update({
+        pixPendentes: jogador.pixPendentes
+    });
+
+    salvarDados(); 
+    atualizarTela(); atualizarTelaBanco(); 
+    mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
+}
+
+setInterval(() => {
+    let data = new Date(); let horas = data.getHours().toString().padStart(2, '0'); let min = data.getMinutes().toString().padStart(2, '0');
+    let elHora = document.getElementById('hora-celular'); if(elHora) elHora.innerText = `${horas}:${min}`;
+    let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
+    
+    if (tempoPassado >= 60000 && jogador.banco > 0) {
+        let minutos = Math.floor(tempoPassado / 60000); if (minutos > 120) minutos = 120; 
+        let rendimento = Math.floor(jogador.banco * (0.02 * minutos));
+        jogador.banco += rendimento; jogador.ultimaRenda = agora;
+        salvarDados(); atualizarTela();
+        let appBancoAtivo = document.getElementById('app-banco');
+        if (appBancoAtivo && appBancoAtivo.classList.contains('ativa')) atualizarTelaBanco();
+        mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
+    }
+}, 1000); 
+
+function atualizarMissoesCelular() {
+    let listaHTML = document.getElementById('lista-missoes-app'); if (!listaHTML) return; listaHTML.innerHTML = '';
+    listaMissoes.forEach(m => {
+        let progresso = 0;
+        if (m.tipo === "trabalho") progresso = jogador.trabalhosFeitos; if (m.tipo === "vitoria") progresso = jogador.vitoriasCassino;
+        let pct = (progresso / m.objetivo) * 100; if (pct > 100) pct = 100;
+        let jaResgatou = progresso > m.objetivo + 1000; 
+        let btn = `<button disabled style="background:#555; color:#888; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px;">Em Progresso</button>`;
+        if (progresso >= m.objetivo && !jaResgatou) btn = `<button onclick="resgatarMissao('${m.id}')" style="background:#00ff88; color:black; font-weight:bold; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px; cursor:pointer;">Resgatar S$ ${m.recom}</button>`;
+        else if (jaResgatou) btn = `<button disabled style="background:#333; color:#555; border:none; padding: 5px; border-radius: 5px; width:100%; margin-top:10px;">Concluída</button>`;
+        let div = document.createElement('div'); div.className = 'item-missao';
+        div.innerHTML = `<h4 style="color: var(--texto);">${m.texto}</h4><p style="color: var(--texto-apagado); font-size: 0.8rem; margin-bottom: 5px;">Recompensa: S$ ${m.recom}</p><div style="background: #333; height: 10px; border-radius: 5px; overflow:hidden;"><div style="background: var(--rosa); height: 100%; width: ${pct}%;"></div></div><p style="text-align:right; font-size: 0.7rem; color: var(--ouro);">${jaResgatou ? m.objetivo : progresso}/${m.objetivo}</p>${btn}`;
+        listaHTML.appendChild(div);
+    });
+}
+
+function resgatarMissao(idMissao) {
+    let missao = listaMissoes.find(m => m.id === idMissao); jogador.saldo += missao.recom;
+    if (missao.tipo === "trabalho") jogador.trabalhosFeitos += 1000; if (missao.tipo === "vitoria") jogador.vitoriasCassino += 1000;
+    salvarDados(); atualizarTela(); atualizarMissoesCelular(); mostrarNotificacao(`Missão Concluída! +S$ ${missao.recom}`, "ouro");
+}
+
+window.onload = function() {
+    atualizarTela(); 
+    let agora = Date.now();
+    let tempoEsperaTrabalho = jogador.inventario.includes("relogio") ? 5000 : 10000;
+    if (agora - jogador.ultimoTrabalho < tempoEsperaTrabalho) iniciarCooldownVisual(tempoEsperaTrabalho - (agora - jogador.ultimoTrabalho));
+    let tempoOfflineBanco = agora - jogador.ultimaRenda;
+    if (tempoOfflineBanco >= 60000 && jogador.banco > 0) {
+        let minutosOff = Math.floor(tempoOfflineBanco / 60000); if (minutosOff > 120) minutosOff = 120; 
+        let rendimentoOff = Math.floor(jogador.banco * (0.02 * minutosOff));
+        jogador.banco += rendimentoOff; jogador.ultimaRenda = agora;
+        mostrarNotificacao(`Rendimento Offline: + S$ ${rendimentoOff}`, "ouro");
+    }
+
+    if(jogador.nome !== "Visitante") atualizarBancoDeDados();
+    verificarADM();
+
+    db.collection("contas_globais").orderBy("fortunaTotal", "desc").limit(50).onSnapshot((querySnapshot) => {
+        rankingGlobal = [];
+        querySnapshot.forEach((doc) => {
+            rankingGlobal.push(doc.data());
+        });
+        if (document.getElementById('tela-ranking').classList.contains('ativa')) {
+            gerarRanking();
+        }
+    });
+
+    if(jogador.nome !== "Visitante") {
+        db.collection("contas_globais").doc(jogador.nome).onSnapshot((docSnapshot) => {
+            if(docSnapshot.exists) {
+                let nuvem = docSnapshot.data();
+                let atualizou = false;
+                
+                if (nuvem.pixPendentes && JSON.stringify(nuvem.pixPendentes) !== JSON.stringify(jogador.pixPendentes)) {
+                    if (nuvem.pixPendentes.length > jogador.pixPendentes.length) {
+                        mostrarNotificacao("Acabaste de receber um PIX Global!", "ouro");
+                    }
+                    jogador.pixPendentes = nuvem.pixPendentes; 
+                    atualizou = true;
+                }
+                
+                if (nuvem.banco > jogador.banco) {
+                    jogador.banco = nuvem.banco; 
+                    atualizou = true;
+                }
+                
+                if(atualizou) {
+                    localStorage.setItem('schnitzel_save_atual', JSON.stringify(jogador));
+                    atualizarTela(); atualizarTelaBanco(); verificarNotificacoesCelular();
+                }
+            }
+        });
+    }
+};
