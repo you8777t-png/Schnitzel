@@ -476,17 +476,35 @@ window.onload = function() {
 
     if(jogador.nome !== "Visitante") atualizarBancoDeDados();
     verificarADM();
-
-    // RASTREIO DA NUVEM (TEMPO REAL) - Escuta as contas de toda a gente para o Ranking Global
-    db.collection("contas_globais").orderBy("fortunaTotal", "desc").limit(50).onSnapshot((querySnapshot) => {
-        rankingGlobal = [];
-        querySnapshot.forEach((doc) => {
-            rankingGlobal.push(doc.data());
+    
+    // RASTREIO DE RECEÇÕES - Deteta ao vivo se tu recebeste PIX ou dinheiro de Máfia
+    if(jogador.nome !== "Visitante") {
+        db.collection("contas_globais").doc(jogador.nome).onSnapshot((docSnapshot) => {
+            if(docSnapshot.exists) {
+                let nuvem = docSnapshot.data();
+                let atualizou = false;
+                
+                // Rastreio Ninja de PIX
+                if (nuvem.pixPendentes && JSON.stringify(nuvem.pixPendentes) !== JSON.stringify(jogador.pixPendentes)) {
+                    if (nuvem.pixPendentes.length > jogador.pixPendentes.length) {
+                        mostrarNotificacao("Acabaste de receber um PIX Global!", "ouro");
+                    }
+                    jogador.pixPendentes = nuvem.pixPendentes; 
+                    atualizou = true;
+                }
+                
+                if (nuvem.banco > jogador.banco) {
+                    jogador.banco = nuvem.banco; 
+                    atualizou = true;
+                }
+                
+                if(atualizou) {
+                    localStorage.setItem('schnitzel_save_atual', JSON.stringify(jogador));
+                    atualizarTela(); atualizarTelaBanco(); verificarNotificacoesCelular();
+                }
+            }
         });
-        if (document.getElementById('tela-ranking').classList.contains('ativa')) {
-            gerarRanking();
-        }
-    });
+    }
 
     // RASTREIO DE RECEÃ‡Ã•ES - Deteta ao vivo se tu recebeste PIX ou dinheiro de MÃ¡fia
     if(jogador.nome !== "Visitante") {
