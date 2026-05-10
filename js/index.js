@@ -374,32 +374,60 @@ function admDarDinheiro() {
     let valor = prompt(`Quanto desejas injetar no BANCO de ${alvo}?`);
     if(!valor || isNaN(parseInt(valor))) return;
 
-    db.collection("contas_globais").doc(alvo).get().then(doc => {
-        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
-        db.collection("contas_globais").doc(alvo).update({ banco: firebase.firestore.FieldValue.increment(parseInt(valor)) })
-        .then(() => { mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso"); document.getElementById('adm-alvo').value = ''; });
-    });
+    // Se o alvo for o próprio ADM, injeta direto na memória do celular!
+    if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
+        jogador.banco += parseInt(valor);
+        salvarDados(); 
+        atualizarTela(); 
+        atualizarTelaBanco();
+        mostrarNotificacao(`S$ ${valor} injetados no teu próprio Banco!`, "sucesso");
+        document.getElementById('adm-alvo').value = '';
+    } else {
+        // Se for outro jogador, manda pra Nuvem
+        db.collection("contas_globais").doc(alvo).get().then(doc => {
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+            db.collection("contas_globais").doc(alvo).update({ banco: firebase.firestore.FieldValue.increment(parseInt(valor)) })
+            .then(() => { mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso"); document.getElementById('adm-alvo').value = ''; });
+        });
+    }
 }
 
 function admDarNivel() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-    db.collection("contas_globais").doc(alvo).get().then(doc => {
-        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
-        db.collection("contas_globais").doc(alvo).update({ nivel: firebase.firestore.FieldValue.increment(1) })
-        .then(() => { mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro"); });
-    });
+    
+    if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
+        jogador.nivel += 1;
+        salvarDados(); 
+        atualizarTela();
+        mostrarNotificacao("Deste Level Up a ti mesmo!", "ouro");
+    } else {
+        db.collection("contas_globais").doc(alvo).get().then(doc => {
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+            db.collection("contas_globais").doc(alvo).update({ nivel: firebase.firestore.FieldValue.increment(1) })
+            .then(() => { mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro"); });
+        });
+    }
 }
 
 function admZerarBanco() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-    if(confirm(`ATENÃ‡ÃƒO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
-        db.collection("contas_globais").doc(alvo).get().then(doc => {
-            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
-            db.collection("contas_globais").doc(alvo).update({ banco: 0 })
-            .then(() => { mostrarNotificacao(`Banco de ${alvo} zerado com sucesso!`, "erro"); document.getElementById('adm-alvo').value = ''; });
-        });
+    if(confirm(`ATENÇÃO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
+        if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
+            jogador.banco = 0;
+            salvarDados(); 
+            atualizarTela(); 
+            atualizarTelaBanco();
+            mostrarNotificacao("Zeraste o teu próprio banco!", "erro");
+            document.getElementById('adm-alvo').value = '';
+        } else {
+            db.collection("contas_globais").doc(alvo).get().then(doc => {
+                if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+                db.collection("contas_globais").doc(alvo).update({ banco: 0 })
+                .then(() => { mostrarNotificacao(`Banco de ${alvo} zerado com sucesso!`, "erro"); document.getElementById('adm-alvo').value = ''; });
+            });
+        }
     }
 }
 
