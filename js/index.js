@@ -260,14 +260,13 @@ function comprarItem(idItem) {
 }
 
 // --- NOVO SISTEMA DE EMPREGOS VARIADOS ---
-function renderizarEmpregos() {
+    function renderizarEmpregos() {
     const mural = document.getElementById('mural-empregos'); if (!mural) return; mural.innerHTML = '';
     
     let agora = Date.now();
     let bloqueadoGeral = false;
     let tempoRestante = 0;
 
-    // Calcula se o jogador ainda tá em cooldown do último emprego
     if (jogador.ultimoTrabalhoInfo) {
         let tempoEspera = jogador.ultimoTrabalhoInfo.cd;
         if (jogador.inventario.includes("relogio")) tempoEspera = tempoEspera / 2;
@@ -289,13 +288,13 @@ function renderizarEmpregos() {
                 <h3 style="color: ${nivelInsuficiente ? '#555' : 'var(--texto)'};">${trab.nome}</h3>
                 <p style="color: var(--texto-apagado);">Paga: S$ ${trab.min} a ${trab.max}</p>
             </div>
-            <button class="${btnClasse}" style="padding: 10px; font-size: 0.9rem; margin-top:0;" ${nivelInsuficiente || bloqueadoGeral ? 'disabled' : `onclick="executarTrabalho('${trab.id}')"`}>${blockText}</button>
+            <button class="${btnClasse}" style="padding: 10px; font-size: 0.85rem; margin-top:0; width: 130px; text-align: center;" ${nivelInsuficiente || bloqueadoGeral ? 'disabled' : `onclick="executarTrabalho('${trab.id}')"`}>${blockText}</button>
         `;
         mural.appendChild(div);
     });
 
     if (bloqueadoGeral) {
-        setTimeout(renderizarEmpregos, 1000); // Fica atualizando o reloginho
+        setTimeout(renderizarEmpregos, 1000); 
     }
 }
 
