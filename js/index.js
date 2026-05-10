@@ -36,11 +36,11 @@ const profissoes = [
 ];
 
 const catalogoTrabalhos = [
-    { id: "t1", nome: "Lavar Pratos", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
-    { id: "t2", nome: "Entregar Encomendas", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
-    { id: "t3", nome: "Investir na Bolsa", nvlReq: 5, min: 100, max: 400, cd: 30000, icone: "fa-chart-line", desc: "Mercado financeiro clássico." },
-    { id: "t4", nome: "Programar Bot Discord", nvlReq: 10, min: 500, max: 1500, cd: 60000, icone: "fa-robot", desc: "JavaScript e muito café." },
-    { id: "t5", nome: "Farmar Rota no MMO", nvlReq: 15, min: 2000, max: 5000, cd: 120000, icone: "fa-gamepad", desc: "Grindar experiência o dia todo." }
+    { id: "t1", nome: "Diarista", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
+    { id: "t2", nome: "MotoBoy", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
+    { id: "t3", nome: "Investidor", nvlReq: 5, min: 100, max: 400, cd: 30000, icone: "fa-chart-line", desc: "Mercado financeiro clássico." },
+    { id: "t4", nome: "Progamador", nvlReq: 10, min: 500, max: 1500, cd: 60000, icone: "fa-robot", desc: "JavaScript e muito café." },
+    { id: "t5", nome: "Empresario", nvlReq: 15, min: 2000, max: 5000, cd: 120000, icone: "fa-gamepad", desc: "Grindar experiência o dia todo." }
 ];
 
 const itensLoja = [
