@@ -8,10 +8,10 @@ const firebaseConfig = {
     appId: "1:416321660097:web:6297caabf3cd6e453fe040"
 };
 
-// Iniciar Ligação à Base de Dados
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 let rankingGlobal = [];
+let valorMercadoCripto = 50; // Preço inicial da Moeda
 
 // --- SISTEMA LOCAL DO JOGADOR ---
 let saveAntigo = JSON.parse(localStorage.getItem('schnitzel_save_atual')) || {};
@@ -25,7 +25,8 @@ let jogador = {
     acoes: saveAntigo.acoes || 0, xp: saveAntigo.xp || 0, ultimoTrabalho: saveAntigo.ultimoTrabalho || 0,
     inventario: inventarioSeguro, trabalhosFeitos: saveAntigo.trabalhosFeitos || 0, vitoriasCassino: saveAntigo.vitoriasCassino || 0,
     derrotasCassino: saveAntigo.derrotasCassino || 0, tagsDesbloqueadas: tagsSeguras, tagEquipada: saveAntigo.tagEquipada || "",
-    banco: saveAntigo.banco || 0, ultimaRenda: saveAntigo.ultimaRenda || Date.now(), pixPendentes: pixSeguros, missoesConcluidas: saveAntigo.missoesConcluidas || 0
+    banco: saveAntigo.banco || 0, ultimaRenda: saveAntigo.ultimaRenda || Date.now(), pixPendentes: pixSeguros, missoesConcluidas: saveAntigo.missoesConcluidas || 0,
+    cripto: saveAntigo.cripto || 0 // NOVA CARTEIRA CRIPTO
 };
 
 const profissoes = [
@@ -34,10 +35,19 @@ const profissoes = [
     { nvlMinimo: 20, nome: "Magnata", multiplicador: 30 }
 ];
 
+// O NOVO MURAL DE EMPREGOS
+const catalogoTrabalhos = [
+    { id: "t1", nome: "Lavar Pratos", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
+    { id: "t2", nome: "Entregar Encomendas", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
+    { id: "t3", nome: "Investir na Bolsa", nvlReq: 5, min: 100, max: 400, cd: 30000, icone: "fa-chart-line", desc: "Mercado financeiro clássico." },
+    { id: "t4", nome: "Programar Bot Discord", nvlReq: 10, min: 500, max: 1500, cd: 60000, icone: "fa-robot", desc: "JavaScript e muito café." },
+    { id: "t5", nome: "Farmar Rota no MMO", nvlReq: 15, min: 2000, max: 5000, cd: 120000, icone: "fa-gamepad", desc: "Grindar experiência o dia todo." }
+];
+
 const itensLoja = [
     { id: "amuleto", nome: "Amuleto da Sorte", preco: 2500, icone: "fa-gem", desc: "Aumenta probabilidade no Casino para 50%." },
-    { id: "relogio", nome: "Relógio Turbo", preco: 5000, icone: "fa-stopwatch", desc: "Trabalho a cada 5 segundos." },
-    { id: "licenca", nome: "Licença VIP", preco: 15000, icone: "fa-id-card", desc: "Duplica o dinheiro do trabalho." }
+    { id: "relogio", nome: "Relógio Turbo", preco: 5000, icone: "fa-stopwatch", desc: "Corta tempo de espera de trabalhos pela metade." },
+    { id: "licenca", nome: "Licença VIP", preco: 15000, icone: "fa-id-card", desc: "Duplica o dinheiro de qualquer trabalho." }
 ];
 
 const listaTags = [
@@ -51,11 +61,10 @@ const listaMissoes = [
     { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 }
 ];
 
-// --- FUNÇÕES DA BASE DE DADOS GLOBAL ---
 function atualizarBancoDeDados() {
     let dadosParaNuvem = { ...jogador };
     delete dadosParaNuvem.pixPendentes;
-    dadosParaNuvem.fortunaTotal = dadosParaNuvem.saldo + dadosParaNuvem.banco; 
+    dadosParaNuvem.fortunaTotal = dadosParaNuvem.saldo + dadosParaNuvem.banco + (dadosParaNuvem.cripto * valorMercadoCripto); 
     db.collection("contas_globais").doc(jogador.nome).set(dadosParaNuvem, { merge: true })
       .catch(e => console.error("Erro Nuvem:", e));
 }
@@ -75,10 +84,8 @@ function atualizarTela() {
     let elNome = document.getElementById('nome-jogador'); if(elNome) elNome.innerText = jogador.nome;
     let elSaldo = document.getElementById('saldo-jogador'); if(elSaldo) elSaldo.innerText = jogador.saldo.toLocaleString('pt-PT');
     let elBancoHome = document.getElementById('saldo-banco-home'); if(elBancoHome) elBancoHome.innerText = jogador.banco.toLocaleString('pt-PT');
-    let elLucro = document.getElementById('lucro-diario'); if(elLucro) elLucro.innerText = jogador.lucroHoje.toLocaleString('pt-PT');
     let elNivel = document.getElementById('nivel-jogador'); if(elNivel) elNivel.innerText = jogador.nivel;
-    let elAcoes = document.getElementById('total-acoes'); if(elAcoes) elAcoes.innerText = jogador.acoes;
-
+    
     let badgeCargo = document.getElementById('cargo-jogador'); if(badgeCargo) badgeCargo.innerText = obterProfissao().nome;
 
     let elTag = document.getElementById('tag-jogador');
@@ -107,6 +114,7 @@ function atualizarTela() {
     let editAvatar = document.getElementById('edit-avatar'); if(editAvatar) editAvatar.value = jogador.avatar;
 
     atualizarSelectTags(); verificarNotificacoesCelular(); verificarADM();
+    if(document.getElementById('tela-trabalhar').classList.contains('ativa')) renderizarEmpregos();
 }
 
 function navegar(elementoClicado, idDaTela) {
@@ -117,6 +125,7 @@ function navegar(elementoClicado, idDaTela) {
     if (idDaTela === 'tela-loja') renderizarLoja();
     if (idDaTela === 'tela-perfil') renderizarInventario();
     if (idDaTela === 'tela-ranking') gerarRanking();
+    if (idDaTela === 'tela-trabalhar') renderizarEmpregos();
 }
 
 function mostrarNotificacao(mensagem, tipo = 'info') {
@@ -142,9 +151,9 @@ function salvarPerfil() {
             if (doc.exists) {
                 let nuvem = doc.data();
                 if (nuvem.senha !== senhaNova) return mostrarNotificacao("Palavra-passe incorreta!", "erro");
-                
                 jogador = nuvem; 
                 if (avatarNovo !== "") jogador.avatar = avatarNovo;
+                if(jogador.cripto === undefined) jogador.cripto = 0; // Previne erro antigo
                 salvarDados();
                 mostrarNotificacao(`Bem-vindo de volta, ${nomeNovo}!`, "ouro");
             } else {
@@ -153,20 +162,16 @@ function salvarPerfil() {
                     nome: nomeNovo, senha: senhaNova, avatar: avatarNovo, saldo: 0, lucroHoje: 0, 
                     nivel: 1, acoes: 0, xp: 0, ultimoTrabalho: 0, inventario: [],
                     trabalhosFeitos: 0, vitoriasCassino: 0, derrotasCassino: 0, tagsDesbloqueadas: [], tagEquipada: "",
-                    banco: 0, ultimaRenda: Date.now(), pixPendentes: [], missoesConcluidas: 0
+                    banco: 0, ultimaRenda: Date.now(), pixPendentes: [], missoesConcluidas: 0, cripto: 0
                 };
                 salvarDados(); 
                 mostrarNotificacao(`Conta ${nomeNovo} criada na Nuvem!`, "sucesso");
             }
             atualizarTela(); atualizarBancoDeDados(); verificarADM();
-        }).catch(e => {
-            console.error(e);
-            mostrarNotificacao("ERRO REAL: " + e.message, "erro");
-        });
+        }).catch(e => { console.error(e); mostrarNotificacao("ERRO REAL: " + e.message, "erro"); });
     } else {
         jogador.senha = senhaNova; jogador.avatar = avatarNovo;
-        salvarDados(); 
-        mostrarNotificacao("Perfil guardado na Nuvem!", "sucesso");
+        salvarDados(); mostrarNotificacao("Perfil guardado na Nuvem!", "sucesso");
         atualizarTela(); atualizarBancoDeDados(); verificarADM();
     }
 }
@@ -214,11 +219,7 @@ function renderizarInventario() {
 
 function gerarRanking() {
     const divRanking = document.getElementById('lista-ranking'); if (!divRanking) return; divRanking.innerHTML = '';
-    
-    if (rankingGlobal.length === 0) {
-        divRanking.innerHTML = '<p style="text-align:center; color: var(--texto-apagado);">A ligar aos satélites da base de dados...</p>';
-        return;
-    }
+    if (rankingGlobal.length === 0) { divRanking.innerHTML = '<p style="text-align:center; color: var(--texto-apagado);">A ligar aos satélites da base de dados...</p>'; return; }
 
     rankingGlobal.forEach((p, index) => {
         let posicao = index + 1; let classePos = ""; let icone = `${posicao}º`;
@@ -258,21 +259,66 @@ function comprarItem(idItem) {
     mostrarNotificacao(`Adquiriste: ${item.nome}!`, "ouro");
 }
 
-function trabalhar() {
-    if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta no Perfil primeiro!", "erro");
+// --- NOVO SISTEMA DE EMPREGOS VARIADOS ---
+function renderizarEmpregos() {
+    const mural = document.getElementById('mural-empregos'); if (!mural) return; mural.innerHTML = '';
+    
     let agora = Date.now();
-    let tempoEspera = jogador.inventario.includes("relogio") ? 5000 : 10000; 
-    if (agora - jogador.ultimoTrabalho < tempoEspera) return; 
+    let bloqueadoGeral = false;
+    let tempoRestante = 0;
 
-    let ganhoBase = Math.floor(Math.random() * 20) + 10; 
+    // Calcula se o jogador ainda tá em cooldown do último emprego
+    if (jogador.ultimoTrabalhoInfo) {
+        let tempoEspera = jogador.ultimoTrabalhoInfo.cd;
+        if (jogador.inventario.includes("relogio")) tempoEspera = tempoEspera / 2;
+        if (agora - jogador.ultimoTrabalho < tempoEspera) {
+            bloqueadoGeral = true;
+            tempoRestante = Math.ceil((tempoEspera - (agora - jogador.ultimoTrabalho)) / 1000);
+        }
+    }
+
+    catalogoTrabalhos.forEach(trab => {
+        let nivelInsuficiente = jogador.nivel < trab.nvlReq;
+        let blockText = nivelInsuficiente ? `Nvl Mínimo: ${trab.nvlReq}` : (bloqueadoGeral ? `Aguarde ${tempoRestante}s` : `Trabalhar`);
+        let btnClasse = (nivelInsuficiente || bloqueadoGeral) ? "btn-desativado" : "btn-primario";
+        
+        let div = document.createElement('div'); div.className = 'item-loja';
+        div.innerHTML = `
+            <i class="fa-solid ${trab.icone}" style="color: var(--rosa);"></i>
+            <div class="item-loja-info">
+                <h3 style="color: ${nivelInsuficiente ? '#555' : 'var(--texto)'};">${trab.nome}</h3>
+                <p style="color: var(--texto-apagado);">Paga: S$ ${trab.min} a ${trab.max}</p>
+            </div>
+            <button class="${btnClasse}" style="padding: 10px; font-size: 0.9rem; margin-top:0;" ${nivelInsuficiente || bloqueadoGeral ? 'disabled' : `onclick="executarTrabalho('${trab.id}')"`}>${blockText}</button>
+        `;
+        mural.appendChild(div);
+    });
+
+    if (bloqueadoGeral) {
+        setTimeout(renderizarEmpregos, 1000); // Fica atualizando o reloginho
+    }
+}
+
+function executarTrabalho(idTrabalho) {
+    if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta no Perfil primeiro!", "erro");
+    
+    let trab = catalogoTrabalhos.find(t => t.id === idTrabalho);
+    let ganhoBase = Math.floor(Math.random() * (trab.max - trab.min + 1)) + trab.min;
+    
     let ganhoTotal = Math.floor(ganhoBase * obterProfissao().multiplicador);
     if (jogador.inventario.includes("licenca")) ganhoTotal *= 2;
 
-    jogador.saldo += ganhoTotal; jogador.lucroHoje += ganhoTotal; jogador.acoes += 1;
-    jogador.trabalhosFeitos += 1; jogador.xp += 25; jogador.ultimoTrabalho = agora;
+    jogador.saldo += ganhoTotal; 
+    jogador.lucroHoje += ganhoTotal; 
+    jogador.acoes += 1;
+    jogador.trabalhosFeitos += 1; 
+    jogador.xp += 25; 
+    jogador.ultimoTrabalho = Date.now();
+    jogador.ultimoTrabalhoInfo = { cd: trab.cd };
 
-    verificarTags(); verificarNivel(); salvarDados(); atualizarTela(); iniciarCooldownVisual(tempoEspera);
-    mostrarNotificacao(`+ S$ ${ganhoTotal.toLocaleString('pt-PT')}!`, 'sucesso'); atualizarMissoesCelular(); 
+    verificarTags(); verificarNivel(); salvarDados(); atualizarTela(); renderizarEmpregos();
+    mostrarNotificacao(`Trabalhaste como ${trab.nome} e ganhaste S$ ${ganhoTotal.toLocaleString('pt-PT')}!`, 'sucesso'); 
+    atualizarMissoesCelular(); 
 }
 
 function apostar() {
@@ -299,9 +345,7 @@ function apostar() {
             if (jogador.nome === adm) {
                 jogador.banco += fatiaAdmin;
             } else {
-                db.collection("contas_globais").doc(adm).set({
-                    banco: firebase.firestore.FieldValue.increment(fatiaAdmin)
-                }, { merge: true });
+                db.collection("contas_globais").doc(adm).set({ banco: firebase.firestore.FieldValue.increment(fatiaAdmin) }, { merge: true });
             }
         });
     }
@@ -313,16 +357,6 @@ function verificarNivel() {
     if (jogador.xp >= xpNecessario) { jogador.xp -= xpNecessario; jogador.nivel += 1; mostrarNotificacao(`Level Up! Nível ${jogador.nivel}!`, 'ouro'); }
 }
 
-function iniciarCooldownVisual(tempoEspera) {
-    let botao = document.getElementById('btn-trabalhar'); if(!botao) return;
-    botao.classList.add('btn-desativado'); botao.disabled = true;
-    let segundos = Math.ceil(tempoEspera / 1000); botao.innerText = `Aguarde ${segundos}s...`;
-    let intervalo = setInterval(() => {
-        segundos--; botao.innerText = `Aguarde ${segundos}s...`;
-        if (segundos <= 0) { clearInterval(intervalo); botao.classList.remove('btn-desativado'); botao.disabled = false; botao.innerText = "Trabalhar Agora"; }
-    }, 1000);
-}
-
 function verificarADM() {
     let appAdm = document.getElementById('app-icone-adm');
     if(appAdm) {
@@ -330,7 +364,6 @@ function verificarADM() {
         else { appAdm.style.display = "none"; }
     }
 }
-
 function admInjetarDinheiro() {
     jogador.saldo += 1000000; salvarDados(); atualizarTela();
     mostrarNotificacao("HACK: + S$ 1.000.000 injetados na conta!", "ouro");
@@ -341,7 +374,7 @@ function admDesbloquearTags() {
     salvarDados(); atualizarTela(); mostrarNotificacao("HACK: Todas as Tags desbloqueadas!", "ouro");
 }
 
-function abrirCelular() { document.getElementById('modal-celular').style.display = 'flex'; abrirApp('app-home'); atualizarTelaBanco(); atualizarMissoesCelular(); }
+function abrirCelular() { document.getElementById('modal-celular').style.display = 'flex'; abrirApp('app-home'); atualizarTelaBanco(); atualizarMissoesCelular(); atualizarTelaCripto(); }
 function botaoHomeCelular() { let homeAtiva = document.getElementById('app-home').classList.contains('ativa'); if (homeAtiva) { document.getElementById('modal-celular').style.display = 'none'; } else { abrirApp('app-home'); } }
 function abrirApp(idApp) { document.querySelectorAll('.app-tela').forEach(t => t.classList.remove('ativa')); document.getElementById(idApp).classList.add('ativa'); }
 function verificarNotificacoesCelular() {
@@ -349,6 +382,7 @@ function verificarNotificacoesCelular() {
     let notifGeral = document.getElementById('notificacao-celular'); if(notifGeral) notifGeral.style.display = temPix ? 'flex' : 'none';
     let notifBanco = document.getElementById('notif-banco'); if(notifBanco) notifBanco.style.display = temPix ? 'flex' : 'none';
 }
+
 function atualizarTelaBanco() {
     document.getElementById('tela-banco-saldo').innerText = jogador.banco.toLocaleString('pt-PT');
     document.getElementById('tela-banco-carteira').innerText = jogador.saldo.toLocaleString('pt-PT');
@@ -411,16 +445,23 @@ function resgatarPix(index) {
     jogador.saldo += pix.valor; 
     jogador.pixPendentes.splice(index, 1); 
     
-    db.collection("contas_globais").doc(jogador.nome).update({
-        pixPendentes: jogador.pixPendentes
-    });
-
-    salvarDados(); 
-    atualizarTela(); atualizarTelaBanco(); 
+    db.collection("contas_globais").doc(jogador.nome).update({ pixPendentes: jogador.pixPendentes });
+    salvarDados(); atualizarTela(); atualizarTelaBanco(); 
     mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
 }
 
+// --- SISTEMA DE CRIPTOMOEDAS ---
 setInterval(() => {
+    // Oscilação do Mercado Cripto
+    let variacao = Math.floor(Math.random() * 41) - 20; // -20 a +20
+    valorMercadoCripto += variacao;
+    if (valorMercadoCripto < 5) valorMercadoCripto = 5; // Proteção contra falência
+    if (valorMercadoCripto > 300) valorMercadoCripto -= 100; // Bolha estoura
+
+    let appCriptoAtivo = document.getElementById('app-cripto');
+    if (appCriptoAtivo && appCriptoAtivo.classList.contains('ativa')) atualizarTelaCripto();
+
+    // Rendimento Banco
     let data = new Date(); let horas = data.getHours().toString().padStart(2, '0'); let min = data.getMinutes().toString().padStart(2, '0');
     let elHora = document.getElementById('hora-celular'); if(elHora) elHora.innerText = `${horas}:${min}`;
     let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
@@ -434,7 +475,45 @@ setInterval(() => {
         if (appBancoAtivo && appBancoAtivo.classList.contains('ativa')) atualizarTelaBanco();
         mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
     }
-}, 1000); 
+}, 10000); // 10 segundos!
+
+function atualizarTelaCripto() {
+    let displayPreco = document.getElementById('preco-cripto-tela');
+    if(displayPreco) {
+        displayPreco.innerText = `S$ ${valorMercadoCripto}`;
+        displayPreco.style.color = valorMercadoCripto > 100 ? "#00ff88" : (valorMercadoCripto < 40 ? "#ff2a6d" : "#ffd700");
+    }
+    let displayMinhas = document.getElementById('minhas-criptos');
+    if(displayMinhas) displayMinhas.innerText = jogador.cripto;
+}
+
+function comprarCripto() {
+    if(jogador.nome === "Visitante") return mostrarNotificacao("Cria conta primeiro!", "erro");
+    let qtd = parseInt(document.getElementById('qtd-cripto').value);
+    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade inválida!", "info");
+    let custoTotal = qtd * valorMercadoCripto;
+    if(jogador.saldo < custoTotal) return mostrarNotificacao(`Precisas de S$ ${custoTotal}!`, "erro");
+
+    jogador.saldo -= custoTotal;
+    jogador.cripto += qtd;
+    salvarDados(); atualizarTela(); atualizarTelaCripto();
+    mostrarNotificacao(`Compraste ${qtd} SNC por S$ ${custoTotal}!`, "sucesso");
+    document.getElementById('qtd-cripto').value = '';
+}
+
+function venderCripto() {
+    if(jogador.nome === "Visitante") return;
+    let qtd = parseInt(document.getElementById('qtd-cripto').value);
+    if(isNaN(qtd) || qtd <= 0) return mostrarNotificacao("Quantidade inválida!", "info");
+    if(jogador.cripto < qtd) return mostrarNotificacao("Não tens essa quantidade de SNC!", "erro");
+
+    let ganhoTotal = qtd * valorMercadoCripto;
+    jogador.cripto -= qtd;
+    jogador.saldo += ganhoTotal;
+    salvarDados(); atualizarTela(); atualizarTelaCripto();
+    mostrarNotificacao(`Vendeste ${qtd} SNC por S$ ${ganhoTotal}!`, "ouro");
+    document.getElementById('qtd-cripto').value = '';
+}
 
 function atualizarMissoesCelular() {
     let listaHTML = document.getElementById('lista-missoes-app'); if (!listaHTML) return; listaHTML.innerHTML = '';
@@ -461,8 +540,6 @@ function resgatarMissao(idMissao) {
 window.onload = function() {
     atualizarTela(); 
     let agora = Date.now();
-    let tempoEsperaTrabalho = jogador.inventario.includes("relogio") ? 5000 : 10000;
-    if (agora - jogador.ultimoTrabalho < tempoEsperaTrabalho) iniciarCooldownVisual(tempoEsperaTrabalho - (agora - jogador.ultimoTrabalho));
     let tempoOfflineBanco = agora - jogador.ultimaRenda;
     if (tempoOfflineBanco >= 60000 && jogador.banco > 0) {
         let minutosOff = Math.floor(tempoOfflineBanco / 60000); if (minutosOff > 120) minutosOff = 120; 
@@ -476,12 +553,8 @@ window.onload = function() {
 
     db.collection("contas_globais").orderBy("fortunaTotal", "desc").limit(50).onSnapshot((querySnapshot) => {
         rankingGlobal = [];
-        querySnapshot.forEach((doc) => {
-            rankingGlobal.push(doc.data());
-        });
-        if (document.getElementById('tela-ranking').classList.contains('ativa')) {
-            gerarRanking();
-        }
+        querySnapshot.forEach((doc) => { rankingGlobal.push(doc.data()); });
+        if (document.getElementById('tela-ranking').classList.contains('ativa')) gerarRanking();
     });
 
     if(jogador.nome !== "Visitante") {
@@ -491,17 +564,11 @@ window.onload = function() {
                 let atualizou = false;
                 
                 if (nuvem.pixPendentes && JSON.stringify(nuvem.pixPendentes) !== JSON.stringify(jogador.pixPendentes)) {
-                    if (nuvem.pixPendentes.length > jogador.pixPendentes.length) {
-                        mostrarNotificacao("Acabaste de receber um PIX Global!", "ouro");
-                    }
-                    jogador.pixPendentes = nuvem.pixPendentes; 
-                    atualizou = true;
+                    if (nuvem.pixPendentes.length > jogador.pixPendentes.length) mostrarNotificacao("Acabaste de receber um PIX Global!", "ouro");
+                    jogador.pixPendentes = nuvem.pixPendentes; atualizou = true;
                 }
                 
-                if (nuvem.banco > jogador.banco) {
-                    jogador.banco = nuvem.banco; 
-                    atualizou = true;
-                }
+                if (nuvem.banco > jogador.banco) { jogador.banco = nuvem.banco; atualizou = true; }
                 
                 if(atualizou) {
                     localStorage.setItem('schnitzel_save_atual', JSON.stringify(jogador));
@@ -511,3 +578,5 @@ window.onload = function() {
         });
     }
 };
+
+
