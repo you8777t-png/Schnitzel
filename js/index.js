@@ -408,10 +408,19 @@ function enviarPix() {
         });
     }).catch(e => mostrarNotificacao("Erro de ligação!", "erro"));
 }
-
 function resgatarPix(index) {
-    let pix = jogador.pixPendentes[index]; jogador.saldo += pix.valor; jogador.pixPendentes.splice(index, 1); 
-    salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
+    let pix = jogador.pixPendentes[index]; 
+    jogador.saldo += pix.valor; 
+    jogador.pixPendentes.splice(index, 1); 
+    
+    // Forçamos a nuvem a apagar o PIX que acabou de ser resgatado
+    db.collection("contas_globais").doc(jogador.nome).update({
+        pixPendentes: jogador.pixPendentes
+    });
+
+    salvarDados(); 
+    atualizarTela(); atualizarTelaBanco(); 
+    mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
 }
 
 setInterval(() => {
