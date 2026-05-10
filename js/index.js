@@ -371,6 +371,58 @@ function admInjetarDinheiro() {
 function admDesbloquearTags() {
     listaTags.forEach(t => { if (!jogador.tagsDesbloqueadas.includes(t.id)) jogador.tagsDesbloqueadas.push(t.id); });
     salvarDados(); atualizarTela(); mostrarNotificacao("HACK: Todas as Tags desbloqueadas!", "ouro");
+
+// --- COMANDOS DE MODERAÇÃO GLOBAL (ADM) ---
+function admDarDinheiro() {
+    let alvo = document.getElementById('adm-alvo').value.trim();
+    if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
+    
+    let valor = prompt(`Quanto desejas injetar no BANCO de ${alvo}?`);
+    if(!valor || isNaN(parseInt(valor))) return;
+
+    db.collection("contas_globais").doc(alvo).get().then(doc => {
+        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+        
+        db.collection("contas_globais").doc(alvo).update({
+            banco: firebase.firestore.FieldValue.increment(parseInt(valor))
+        }).then(() => {
+            mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso");
+            document.getElementById('adm-alvo').value = '';
+        });
+    });
+}
+
+function admDarNivel() {
+    let alvo = document.getElementById('adm-alvo').value.trim();
+    if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
+
+    db.collection("contas_globais").doc(alvo).get().then(doc => {
+        if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+        
+        db.collection("contas_globais").doc(alvo).update({
+            nivel: firebase.firestore.FieldValue.increment(1)
+        }).then(() => {
+            mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro");
+        });
+    });
+}
+
+function admZerarBanco() {
+    let alvo = document.getElementById('adm-alvo').value.trim();
+    if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
+
+    if(confirm(`ATENÇÃO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
+        db.collection("contas_globais").doc(alvo).get().then(doc => {
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+            
+            db.collection("contas_globais").doc(alvo).update({
+                banco: 0
+            }).then(() => {
+                mostrarNotificacao(`Banco de ${alvo} zerado com sucesso! Máfia implacável.`, "erro");
+                document.getElementById('adm-alvo').value = '';
+            });
+        });
+    }
 }
 
 function abrirCelular() { document.getElementById('modal-celular').style.display = 'flex'; abrirApp('app-home'); atualizarTelaBanco(); atualizarMissoesCelular(); atualizarTelaCripto(); }
