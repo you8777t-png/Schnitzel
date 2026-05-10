@@ -62,7 +62,13 @@ body { background-color: var(--bg-dark); background-image: radial-gradient(circl
 .btn-rosa { background-color: var(--rosa) !important; border-color: var(--rosa) !important; margin-top: 0; }
 .btn-rosa:active { background-color: var(--vermelho) !important; }
 .btn-desativado { background-color: #333 !important; border-color: #555 !important; color: #888 !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
-#container-notificacoes { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+#container-notificacoes { 
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%); 
+    width: 90%; max-width: 400px; 
+    z-index: 999999; /* Colocámos 999999 para ficar por cima de TUDO, inclusive do telemóvel */
+    display: flex; flex-direction: column; gap: 10px; pointer-events: none; 
+}
+
 .toast { background: var(--bg-glass); backdrop-filter: blur(15px); border: 1px solid var(--ouro); color: var(--texto); padding: 15px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; animation: slideInDown 0.3s forwards, fadeOutUp 0.3s forwards 2.7s; }
 .toast i { font-size: 1.5rem; color: var(--ouro); }
 .toast.sucesso border-color: #00ff88; .toast.sucesso i { color: #00ff88; }
