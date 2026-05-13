@@ -98,7 +98,7 @@ function atualizarTela() {
     }
 
     let fortuna = jogador.saldo + jogador.banco; let status = "Pobre";
-    if (fortuna >= 500) status = "Trabalhador"; if (fortuna >= 2500) status = "Negociante"; if (fortuna >= 10000) status = "Magnata";
+    if (fortuna >= 2500) status = "Clase Media"; if (fortuna >= 5000) status = "Rico"; if (fortuna >= 10000) status = "Magnata";
     let elStatus = document.getElementById('status-jogador'); if(elStatus) elStatus.innerText = status;
 
     let containerAvatar = document.getElementById('container-avatar');
