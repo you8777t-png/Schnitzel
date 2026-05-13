@@ -213,16 +213,8 @@
             </div>
             <div id="app-adm" class="app-tela scroll-app">
                 <h3 style="text-align: center; color: var(--vermelho); margin-bottom: 15px;"><i class="fa-solid fa-terminal"></i> Modo Deus</h3>
-                
-                <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 1px solid var(--vermelho);">
-                    <p style="color: var(--texto-apagado); font-size: 0.8rem;">Auto-Cheats (Para ti)</p>
-                </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button class="btn-primario" style="background: var(--vermelho); border: none; margin: 0; padding: 10px; font-size: 0.8rem;" onclick="admInjetarDinheiro()">+ S$ 1M</button>
-                    <button class="btn-primario" style="background: #333; border: 1px solid var(--ouro); margin: 0; padding: 10px; font-size: 0.8rem;" onclick="admDesbloquearTags()">Desbloquear Tags</button>
-                </div>
 
-                <div style="background: rgba(255,0,0,0.1); padding: 15px; border-radius: 10px; border: 1px solid var(--vermelho);">
+                                <div style="background: rgba(255,0,0,0.1); padding: 15px; border-radius: 10px; border: 1px solid var(--vermelho);">
                     <h4 style="color: var(--vermelho); margin-bottom: 10px;"><i class="fa-solid fa-users-gear"></i> Moderação de Jogadores</h4>
                     <input type="text" id="adm-alvo" class="input-dark" placeholder="Nome Exato do Jogador" style="margin-bottom: 10px; padding: 10px;">
                     
@@ -232,11 +224,14 @@
                     <button class="btn-primario" style="background: #111; margin: 0 0 10px 0; padding: 10px; border: 1px solid var(--ouro); color: var(--ouro);" onclick="admDarNivel()">
                         <i class="fa-solid fa-arrow-up-right-dots"></i> Subir Nível do Jogador (+1)
                     </button>
-                    <button class="btn-primario" style="background: #300; margin: 0; padding: 10px; border: 1px solid red; color: white;" onclick="admZerarBanco()">
+                    <button class="btn-primario" style="background: #300; margin: 0 0 10px 0; padding: 10px; border: 1px solid red; color: white;" onclick="admZerarBanco()">
                         <i class="fa-solid fa-skull"></i> ZERAR Banco do Jogador
                     </button>
+                    <!-- NOVO BOTÃO DE EXCLUIR CONTA (BAN) -->
+                    <button class="btn-primario" style="background: #000; margin: 0; padding: 10px; border: 1px dashed red; color: red;" onclick="admExcluirConta()">
+                        <i class="fa-solid fa-trash"></i> EXCLUIR Conta (Ban)
+                    </button>
                 </div>
-            </div>
 
             <div class="celular-home-btn" onclick="botaoHomeCelular()"></div>
         </div>
