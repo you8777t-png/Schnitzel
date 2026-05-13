@@ -512,16 +512,42 @@ setInterval(() => {
 
     let data = new Date(); let horas = data.getHours().toString().padStart(2, '0'); let min = data.getMinutes().toString().padStart(2, '0');
     let elHora = document.getElementById('hora-celular'); if(elHora) elHora.innerText = `${horas}:${min}`;
-    let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
     
+    // RENDIMENTO E RECEITA FEDERAL (RODA A CADA 1 MINUTO)
+    let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
     if (tempoPassado >= 60000 && jogador.banco > 0) {
         let minutos = Math.floor(tempoPassado / 60000); if (minutos > 120) minutos = 120; 
+        
+        // 1. Paga o rendimento de 2%
         let rendimento = Math.floor(jogador.banco * (0.02 * minutos));
-        jogador.banco += rendimento; jogador.ultimaRenda = agora;
-        salvarDados(); atualizarTela();
+        jogador.banco += rendimento; 
+        jogador.ultimaRenda = agora;
+        mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
+
+        // 2. SISTEMA BRASIL (A RECEITA FEDERAL ENTRA EM AÇÃO)
+        if (jogador.banco >= 1000000) {
+            // 15% de chance do Leão atacar neste minuto
+            if (Math.random() <= 0.15) {
+                // Verifica se o jogador tem a defesa (Offshore)
+                if (jogador.inventario.includes("offshore")) {
+                    // Consome o item para salvar o dinheiro
+                    jogador.inventario = jogador.inventario.filter(item => item !== "offshore");
+                    mostrarNotificacao("A Receita Federal investigou-te, mas a tua Conta Offshore salvou-te! Defesa consumida.", "ouro");
+                } else {
+                    // PENHORA 40% DO BANCO SEM DÓ!
+                    let valorPenhorado = Math.floor(jogador.banco * 0.40);
+                    jogador.banco -= valorPenhorado;
+                    
+                    // Mostra o erro do Brasil
+                    mostrarNotificacao(`BEM-VINDO AO BRASIL! A Receita Federal penhorou S$ ${valorPenhorado.toLocaleString('pt-PT')} do teu Banco!`, "erro");
+                }
+            }
+        }
+
+        salvarDados(); 
+        atualizarTela();
         let appBancoAtivo = document.getElementById('app-banco');
         if (appBancoAtivo && appBancoAtivo.classList.contains('ativa')) atualizarTelaBanco();
-        mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
     }
 }, 10000); 
 
