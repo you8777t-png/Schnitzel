@@ -52,7 +52,7 @@ const itensLoja = [
 
 const listaTags = [
     { id: "clt", nome: "CLT", tipo: "trabalho", req: 10 }, { id: "br", nome: "Trabalhador", tipo: "trabalho", req: 20 },
-    { id: "sortudo", nome: "Sortudo", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Pé de Coelho", tipo: "vitoria", req: 20 },
+    { id: "sortudo", nome: "Sortudo", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Super Sortudo", tipo: "vitoria", req: 20 },
     { id: "deus_sorte", nome: "Deus da Sorte", tipo: "vitoria", req: 100 }, { id: "gato_preto", nome: "Azarado", tipo: "derrota", req: 10 }
 ];
 
