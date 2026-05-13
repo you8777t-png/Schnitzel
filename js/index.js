@@ -46,13 +46,14 @@ const catalogoTrabalhos = [
 const itensLoja = [
     { id: "amuleto", nome: "Amuleto da Sorte", preco: 2500, icone: "fa-gem", desc: "Aumenta probabilidade no Casino para 50%." },
     { id: "relogio", nome: "Relógio Turbo", preco: 5000, icone: "fa-stopwatch", desc: "Corta tempo de espera de trabalhos pela metade." },
-    { id: "licenca", nome: "Licença VIP", preco: 15000, icone: "fa-id-card", desc: "Duplica o dinheiro de qualquer trabalho." }
+    { id: "licenca", nome: "Licença VIP", preco: 15000, icone: "fa-id-card", desc: "Duplica o dinheiro de qualquer trabalho." },
+    { id: "offshore", nome: "Conta Offshore", preco: 5000000, icone: "fa-file-invoice-dollar", desc: "Proteção de 1 uso. Evita que a Receita Federal penhore o teu Banco." }
 ];
 
 const listaTags = [
-    { id: "clt", nome: "CLT 📝", tipo: "trabalho", req: 10 }, { id: "br", nome: "Trabalhador BR 🇧🇷", tipo: "trabalho", req: 20 },
-    { id: "sortudo", nome: "Sortudo 🍀", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Pé de Coelho 🐇", tipo: "vitoria", req: 20 },
-    { id: "deus_sorte", nome: "Deus da Sorte 👑", tipo: "vitoria", req: 100 }, { id: "gato_preto", nome: "Gato Preto 🐈‍⬛", tipo: "derrota", req: 10 }
+    { id: "clt", nome: "CLT", tipo: "trabalho", req: 10 }, { id: "br", nome: "Trabalhador", tipo: "trabalho", req: 20 },
+    { id: "sortudo", nome: "Sortudo", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Pé de Coelho", tipo: "vitoria", req: 20 },
+    { id: "deus_sorte", nome: "Deus da Sorte", tipo: "vitoria", req: 100 }, { id: "gato_preto", nome: "Azarado", tipo: "derrota", req: 10 }
 ];
 
 const listaMissoes = [
