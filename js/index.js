@@ -30,9 +30,9 @@ let jogador = {
 };
 
 const profissoes = [
-    { nvlMinimo: 1, nome: "Mendigo Digital", multiplicador: 1 }, { nvlMinimo: 3, nome: "Estafeta", multiplicador: 2.5 },
-    { nvlMinimo: 5, nome: "Comerciante", multiplicador: 5 }, { nvlMinimo: 10, nome: "Banqueiro", multiplicador: 12 },
-    { nvlMinimo: 20, nome: "Magnata", multiplicador: 30 }
+    { nvlMinimo: 1, nome: "Pobre", multiplicador: 1 }, { nvlMinimo: 3, nome: "Clase Media", multiplicador: 2.5 },
+    { nvlMinimo: 5, nome: "CM. Alta", multiplicador: 5 }, { nvlMinimo: 10, nome: "Rico", multiplicador: 12 },
+    { nvlMinimo: 20, nome: "Milionário", multiplicador: 30 }
 ];
 
 const catalogoTrabalhos = [
