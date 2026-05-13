@@ -58,7 +58,8 @@ const listaTags = [
 
 const listaMissoes = [
     { id: "m1", texto: "Trabalha 5 vezes", objetivo: 5, tipo: "trabalho", recom: 500 },
-    { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 }
+    { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 },
+    { id: "m3", texto: "Ganha 10 vezes no Casino", objetivo: 10, tipo: "vitoria", recom: 10000 }
 ];
 
 // --- FUNÇÕES DA BASE DE DADOS GLOBAL ---
