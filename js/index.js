@@ -147,21 +147,38 @@ function salvarPerfil() {
 
     if(nomeNovo === "" || nomeNovo === "Visitante") return mostrarNotificacao("Nome inválido!", "info");
 
+    // COLE AQUI O LINK DIRETO (.png ou .jpg) DA LOGO DO BANCO QUE VOCÊ FEZ!
+    let linkLogoBCS = "https://i.postimg.cc/D0ZMn8YJ/file-0000000063fc720e87c772b5968915b7.png";
+
     if (nomeNovo !== jogador.nome) {
         db.collection("contas_globais").doc(nomeNovo).get().then((doc) => {
             if (doc.exists) {
                 let nuvem = doc.data();
                 if (nuvem.senha !== senhaNova) return mostrarNotificacao("Palavra-passe incorreta!", "erro");
+                
                 jogador = nuvem; 
-                if (avatarNovo !== "") jogador.avatar = avatarNovo;
                 if(jogador.cripto === undefined) jogador.cripto = 0; 
+
+                // Se NÃO for o banco, atualiza a foto com o link colado
+                if (jogador.nome !== "BancoCentral_Schnitzel" && avatarNovo !== "") {
+                    jogador.avatar = avatarNovo;
+                }
+
                 salvarDados();
                 mostrarNotificacao(`Bem-vindo de volta, ${nomeNovo}!`, "ouro");
             } else {
                 if (senhaNova === "") return mostrarNotificacao("Cria uma palavra-passe!", "erro");
+                
+                // CRIAÇÃO DA CONTA BLINDADA
                 jogador = {
-                    nome: nomeNovo, senha: senhaNova, avatar: avatarNovo, saldo: 0, lucroHoje: 0, 
-                    nivel: 1, acoes: 0, xp: 0, ultimoTrabalho: 0, inventario: [],
+                    nome: nomeNovo, 
+                    senha: senhaNova, 
+                    // Se for o Banco, força a logo. Se for jogador normal, usa a foto que ele colou.
+                    avatar: (nomeNovo === "BancoCentral_Schnitzel" ? linkLogoBCS : avatarNovo), 
+                    saldo: 0, lucroHoje: 0, 
+                    // Se for o banco, Nível 999!
+                    nivel: (nomeNovo === "BancoCentral_Schnitzel" ? 999 : 1), 
+                    acoes: 0, xp: 0, ultimoTrabalho: 0, inventario: [],
                     trabalhosFeitos: 0, vitoriasCassino: 0, derrotasCassino: 0, tagsDesbloqueadas: [], tagEquipada: "",
                     banco: 0, ultimaRenda: Date.now(), pixPendentes: [], missoesConcluidas: 0, cripto: 0
                 };
@@ -171,8 +188,18 @@ function salvarPerfil() {
             atualizarTela(); atualizarBancoDeDados(); verificarADM();
         }).catch(e => { console.error(e); mostrarNotificacao("ERRO REAL: " + e.message, "erro"); });
     } else {
-        jogador.senha = senhaNova; jogador.avatar = avatarNovo;
-        salvarDados(); mostrarNotificacao("Perfil guardado na Nuvem!", "sucesso");
+        // TENTATIVA DE ALTERAR DADOS ENQUANTO JÁ ESTÁ LOGADO
+        if (jogador.nome === "BancoCentral_Schnitzel") {
+            if (jogador.senha !== senhaNova) return mostrarNotificacao("A senha do Banco Central não pode ser alterada!", "erro");
+            jogador.avatar = linkLogoBCS; // Trava a foto e ignora qualquer link colado
+            mostrarNotificacao("Os dados do Banco Central são blindados pelo sistema!", "info");
+        } else {
+            jogador.senha = senhaNova; 
+            if (avatarNovo !== "") jogador.avatar = avatarNovo;
+            mostrarNotificacao("Perfil guardado na Nuvem!", "sucesso");
+        }
+        
+        salvarDados(); 
         atualizarTela(); atualizarBancoDeDados(); verificarADM();
     }
 }
