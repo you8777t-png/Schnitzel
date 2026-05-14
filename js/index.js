@@ -10,6 +10,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
 let rankingGlobal = [];
 let valorMercadoCripto = 50; 
 
@@ -30,39 +31,40 @@ let jogador = {
 };
 
 const profissoes = [
-    { nvlMinimo: 1, nome: "Pobre", multiplicador: 1 }, { nvlMinimo: 3, nome: "Clase Media", multiplicador: 2.5 },
-    { nvlMinimo: 5, nome: "CM. Alta", multiplicador: 5 }, { nvlMinimo: 10, nome: "Rico", multiplicador: 12 },
-    { nvlMinimo: 20, nome: "Milionário", multiplicador: 30 }
+    { nvlMinimo: 1, nome: "Mendigo Digital", multiplicador: 1 }, { nvlMinimo: 3, nome: "Estafeta", multiplicador: 2.5 },
+    { nvlMinimo: 5, nome: "Comerciante", multiplicador: 5 }, { nvlMinimo: 10, nome: "Banqueiro", multiplicador: 12 },
+    { nvlMinimo: 20, nome: "Magnata", multiplicador: 30 }
 ];
 
 const catalogoTrabalhos = [
-    { id: "t1", nome: "Diarista", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
-    { id: "t2", nome: "MotoBoy", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
-    { id: "t3", nome: "Investidor", nvlReq: 5, min: 100, max: 400, cd: 30000, icone: "fa-chart-line", desc: "Mercado financeiro clássico." },
-    { id: "t4", nome: "Progamador", nvlReq: 10, min: 500, max: 1500, cd: 60000, icone: "fa-robot", desc: "JavaScript e muito café." },
-    { id: "t5", nome: "Empresario", nvlReq: 15, min: 2000, max: 5000, cd: 120000, icone: "fa-gamepad", desc: "Grindar experiência o dia todo." }
+    { id: "t1", nome: "Lavar Pratos", nvlReq: 1, min: 10, max: 30, cd: 5000, icone: "fa-sink", desc: "Rápido mas paga pouco." },
+    { id: "t2", nome: "Entregar Encomendas", nvlReq: 3, min: 50, max: 150, cd: 15000, icone: "fa-motorcycle", desc: "Perigoso no trânsito." },
+    { id: "t3", nome: "Investir na Bolsa", nvlReq: 5, min: 100, max: 400, cd: 30000, icone: "fa-chart-line", desc: "Mercado financeiro clássico." },
+    { id: "t4", nome: "Programar Bot Discord", nvlReq: 10, min: 500, max: 1500, cd: 60000, icone: "fa-robot", desc: "JavaScript e muito café." },
+    { id: "t5", nome: "Farmar Rota no MMO", nvlReq: 15, min: 2000, max: 5000, cd: 120000, icone: "fa-gamepad", desc: "Grindar experiência o dia todo." }
 ];
 
 const itensLoja = [
     { id: "amuleto", nome: "Amuleto da Sorte", preco: 2500, icone: "fa-gem", desc: "Aumenta probabilidade no Casino para 50%." },
     { id: "relogio", nome: "Relógio Turbo", preco: 5000, icone: "fa-stopwatch", desc: "Corta tempo de espera de trabalhos pela metade." },
     { id: "licenca", nome: "Licença VIP", preco: 15000, icone: "fa-id-card", desc: "Duplica o dinheiro de qualquer trabalho." },
-    { id: "offshore", nome: "Conta Offshore", preco: 5000000, icone: "fa-file-invoice-dollar", desc: "Proteção de 1 uso. Evita que a Receita Federal penhore o teu Banco." }
+    { id: "offshore", nome: "Conta Offshore", preco: 5000000, icone: "fa-file-invoice-dollar", desc: "Proteção de 1 uso. Evita que a Receita Federal penhore o teu Banco." },
+    { id: "cartao_black", nome: "Cartão Black Casino", preco: 25000000, icone: "fa-credit-card", desc: "Aumenta a probabilidade no Casino para 55%!" },
+    { id: "servidor_quantico", nome: "Servidor Quântico", preco: 100000000, icone: "fa-server", desc: "Velocidade absurda: Reduz tempo de TODOS os trabalhos para 2s!" }
 ];
 
 const listaTags = [
-    { id: "clt", nome: "CLT", tipo: "trabalho", req: 10 }, { id: "br", nome: "Trabalhador", tipo: "trabalho", req: 20 },
-    { id: "sortudo", nome: "Sortudo", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Super Sortudo", tipo: "vitoria", req: 20 },
-    { id: "deus_sorte", nome: "Deus da Sorte", tipo: "vitoria", req: 100 }, { id: "gato_preto", nome: "Azarado", tipo: "derrota", req: 10 }
+    { id: "clt", nome: "CLT 📝", tipo: "trabalho", req: 10 }, { id: "br", nome: "Trabalhador BR 🇧🇷", tipo: "trabalho", req: 20 },
+    { id: "sortudo", nome: "Sortudo 🍀", tipo: "vitoria", req: 10 }, { id: "coelho", nome: "Pé de Coelho 🐇", tipo: "vitoria", req: 20 },
+    { id: "deus_sorte", nome: "Deus da Sorte 👑", tipo: "vitoria", req: 100 }, { id: "gato_preto", nome: "Gato Preto 🐈‍⬛", tipo: "derrota", req: 10 }
 ];
 
 const listaMissoes = [
     { id: "m1", texto: "Trabalha 5 vezes", objetivo: 5, tipo: "trabalho", recom: 500 },
-    { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 },
-    { id: "m3", texto: "Ganha 10 vezes no Casino", objetivo: 10, tipo: "vitoria", recom: 10000 }
+    { id: "m2", texto: "Ganha 3 vezes no Casino", objetivo: 3, tipo: "vitoria", recom: 800 }
 ];
 
-// --- FUNÇÕES DA BASE DE DADOS GLOBAL ---
+// --- FUNÇÕES GERAIS E BANCO DE DADOS ---
 function atualizarBancoDeDados() {
     let dadosParaNuvem = { ...jogador };
     delete dadosParaNuvem.pixPendentes;
@@ -98,12 +100,12 @@ function atualizarTela() {
     }
 
     let fortuna = jogador.saldo + jogador.banco; let status = "Pobre";
-    if (fortuna >= 2500) status = "Clase Media"; if (fortuna >= 5000) status = "Rico"; if (fortuna >= 10000) status = "Magnata";
+    if (fortuna >= 500) status = "Trabalhador"; if (fortuna >= 2500) status = "Negociante"; if (fortuna >= 10000) status = "Magnata";
     let elStatus = document.getElementById('status-jogador'); if(elStatus) elStatus.innerText = status;
 
     let containerAvatar = document.getElementById('container-avatar');
     if(containerAvatar) {
-        if (jogador.avatar.trim() !== "") {
+        if (jogador.avatar && jogador.avatar.trim() !== "") {
             containerAvatar.innerHTML = `<img src="${jogador.avatar.trim()}" class="avatar-img" onerror="this.outerHTML='<i class=\\'fa-solid fa-user-astronaut\\'></i>';">`;
         } else {
             containerAvatar.innerHTML = `<i class="fa-solid fa-user-astronaut"></i>`;
@@ -112,7 +114,6 @@ function atualizarTela() {
 
     let editNome = document.getElementById('edit-nome'); if(editNome) editNome.value = jogador.nome;
     let editSenha = document.getElementById('edit-senha'); if(editSenha) editSenha.value = jogador.senha;
-    let editAvatar = document.getElementById('edit-avatar'); if(editAvatar) editAvatar.value = jogador.avatar;
 
     atualizarSelectTags(); verificarNotificacoesCelular(); verificarADM();
     if(document.getElementById('tela-trabalhar').classList.contains('ativa')) renderizarEmpregos();
@@ -143,12 +144,12 @@ function mostrarNotificacao(mensagem, tipo = 'info') {
 function salvarPerfil() {
     let nomeNovo = document.getElementById('edit-nome').value.trim();
     let senhaNova = document.getElementById('edit-senha').value;
-    let avatarNovo = document.getElementById('edit-avatar').value.trim();
+    let avatarNovo = document.getElementById('edit-avatar') ? document.getElementById('edit-avatar').value.trim() : "";
 
     if(nomeNovo === "" || nomeNovo === "Visitante") return mostrarNotificacao("Nome inválido!", "info");
 
-    // COLE AQUI O LINK DIRETO (.png ou .jpg) DA LOGO DO BANCO QUE VOCÊ FEZ!
-    let linkLogoBCS = "https://i.postimg.cc/D0ZMn8YJ/file-0000000063fc720e87c772b5968915b7.png";
+    // COLE AQUI O LINK (.jpg) DA LOGO DO BANCO CENTRAL QUE VOCÊ PEGOU
+    let linkLogoBCS = "COLE_O_LINK_DA_FOTO_DO_BCS_AQUI";
 
     if (nomeNovo !== jogador.nome) {
         db.collection("contas_globais").doc(nomeNovo).get().then((doc) => {
@@ -158,25 +159,22 @@ function salvarPerfil() {
                 
                 jogador = nuvem; 
                 if(jogador.cripto === undefined) jogador.cripto = 0; 
-
-                // Se NÃO for o banco, atualiza a foto com o link colado
+                
                 if (jogador.nome !== "BancoCentral_Schnitzel" && avatarNovo !== "") {
                     jogador.avatar = avatarNovo;
                 }
+                if (jogador.nome === "BancoCentral_Schnitzel") jogador.avatar = linkLogoBCS;
 
                 salvarDados();
                 mostrarNotificacao(`Bem-vindo de volta, ${nomeNovo}!`, "ouro");
             } else {
                 if (senhaNova === "") return mostrarNotificacao("Cria uma palavra-passe!", "erro");
                 
-                // CRIAÇÃO DA CONTA BLINDADA
                 jogador = {
                     nome: nomeNovo, 
                     senha: senhaNova, 
-                    // Se for o Banco, força a logo. Se for jogador normal, usa a foto que ele colou.
                     avatar: (nomeNovo === "BancoCentral_Schnitzel" ? linkLogoBCS : avatarNovo), 
                     saldo: 0, lucroHoje: 0, 
-                    // Se for o banco, Nível 999!
                     nivel: (nomeNovo === "BancoCentral_Schnitzel" ? 999 : 1), 
                     acoes: 0, xp: 0, ultimoTrabalho: 0, inventario: [],
                     trabalhosFeitos: 0, vitoriasCassino: 0, derrotasCassino: 0, tagsDesbloqueadas: [], tagEquipada: "",
@@ -188,19 +186,16 @@ function salvarPerfil() {
             atualizarTela(); atualizarBancoDeDados(); verificarADM();
         }).catch(e => { console.error(e); mostrarNotificacao("ERRO REAL: " + e.message, "erro"); });
     } else {
-        // TENTATIVA DE ALTERAR DADOS ENQUANTO JÁ ESTÁ LOGADO
         if (jogador.nome === "BancoCentral_Schnitzel") {
             if (jogador.senha !== senhaNova) return mostrarNotificacao("A senha do Banco Central não pode ser alterada!", "erro");
-            jogador.avatar = linkLogoBCS; // Trava a foto e ignora qualquer link colado
-            mostrarNotificacao("Os dados do Banco Central são blindados pelo sistema!", "info");
+            jogador.avatar = linkLogoBCS;
+            mostrarNotificacao("Os dados do Banco Central são blindados!", "info");
         } else {
             jogador.senha = senhaNova; 
             if (avatarNovo !== "") jogador.avatar = avatarNovo;
             mostrarNotificacao("Perfil guardado na Nuvem!", "sucesso");
         }
-        
-        salvarDados(); 
-        atualizarTela(); atualizarBancoDeDados(); verificarADM();
+        salvarDados(); atualizarTela(); atualizarBancoDeDados(); verificarADM();
     }
 }
 
@@ -249,7 +244,28 @@ function gerarRanking() {
     const divRanking = document.getElementById('lista-ranking'); if (!divRanking) return; divRanking.innerHTML = '';
     if (rankingGlobal.length === 0) { divRanking.innerHTML = '<p style="text-align:center; color: var(--texto-apagado);">A ligar aos satélites da base de dados...</p>'; return; }
 
-    rankingGlobal.forEach((p, index) => {
+    let bancoCentral = rankingGlobal.find(p => p.nome === "BancoCentral_Schnitzel");
+    let jogadoresReais = rankingGlobal.filter(p => p.nome !== "BancoCentral_Schnitzel");
+
+    if (bancoCentral) {
+        let imgTag = bancoCentral.avatar && bancoCentral.avatar.trim() !== "" 
+            ? `<img src="${bancoCentral.avatar}" style="width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--ouro); object-fit: cover;">` 
+            : `<div style="width: 55px; height: 55px; border-radius: 50%; background: #333; display:flex; align-items:center; justify-content:center; border: 2px solid var(--ouro);"><i class="fa-solid fa-building-columns"></i></div>`;
+        
+        let divBC = document.createElement('div');
+        divBC.style.cssText = "background: linear-gradient(45deg, #1a0033, #000); border: 1px solid var(--ouro); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 25px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);";
+        divBC.innerHTML = `
+            ${imgTag}
+            <div style="flex: 1;">
+                <h3 style="color: var(--ouro); font-size: 1.1rem; text-transform: uppercase;">Reserva Federal (BCS$)</h3>
+                <p style="color: var(--texto-apagado); font-size: 0.8rem;">Dinheiro Penhorado da População</p>
+            </div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #00ff88; text-shadow: 0 0 5px #00ff88;">S$ ${bancoCentral.fortunaTotal.toLocaleString('pt-PT')}</div>
+        `;
+        divRanking.appendChild(divBC);
+    }
+
+    jogadoresReais.forEach((p, index) => {
         let posicao = index + 1; let classePos = ""; let icone = `${posicao}º`;
         if (posicao === 1) { classePos = "rank-1"; icone = '<i class="fa-solid fa-crown"></i>'; }
         else if (posicao === 2) { classePos = "rank-2"; icone = '<i class="fa-solid fa-medal"></i>'; }
@@ -296,7 +312,13 @@ function renderizarEmpregos() {
 
     if (jogador.ultimoTrabalhoInfo) {
         let tempoEspera = jogador.ultimoTrabalhoInfo.cd;
-        if (jogador.inventario.includes("relogio")) tempoEspera = tempoEspera / 2;
+        
+        if (jogador.inventario.includes("servidor_quantico")) {
+            tempoEspera = 2000; 
+        } else if (jogador.inventario.includes("relogio")) {
+            tempoEspera = tempoEspera / 2;
+        }
+
         if (agora - jogador.ultimoTrabalho < tempoEspera) {
             bloqueadoGeral = true;
             tempoRestante = Math.ceil((tempoEspera - (agora - jogador.ultimoTrabalho)) / 1000);
@@ -346,11 +368,17 @@ function apostar() {
     if(jogador.nome === "Visitante") return mostrarNotificacao("Cria uma conta primeiro!", "erro");
     let input = document.getElementById('valor-aposta'); if (!input) return;
     let valorAposta = parseInt(input.value);
-    if (isNaN(valorAposta) || valorAposta <= 0) return mostrarNotificacao("Valor inválido!", "info");
+    if (isNaN(valorAposta) || valorAposta <= 0) return mostrarNotificacao("Valor invÃ¡lido!", "info");
     if (valorAposta > jogador.saldo) return mostrarNotificacao("Saldo insuficiente!", "info");
 
     jogador.saldo -= valorAposta; jogador.acoes += 1;
-    let limiteVitoria = jogador.inventario.includes("amuleto") ? 0.50 : 0.45;
+    
+    let limiteVitoria = 0.45;
+    if (jogador.inventario.includes("cartao_black")) {
+        limiteVitoria = 0.55;
+    } else if (jogador.inventario.includes("amuleto")) {
+        limiteVitoria = 0.50;
+    }
 
     if (Math.random() <= limiteVitoria) {
         let lucroPuro = valorAposta * 2; jogador.saldo += valorAposta; jogador.saldo += lucroPuro;   
@@ -375,7 +403,7 @@ function apostar() {
 
 function verificarNivel() {
     let xpNecessario = jogador.nivel * 100; 
-    if (jogador.xp >= xpNecessario) { jogador.xp -= xpNecessario; jogador.nivel += 1; mostrarNotificacao(`Level Up! Nível ${jogador.nivel}!`, 'ouro'); }
+    if (jogador.xp >= xpNecessario) { jogador.xp -= xpNecessario; jogador.nivel += 1; mostrarNotificacao(`Level Up! NÃ­vel ${jogador.nivel}!`, 'ouro'); }
 }
 
 function verificarADM() {
@@ -403,18 +431,13 @@ function admDarDinheiro() {
     let valor = prompt(`Quanto desejas injetar no BANCO de ${alvo}?`);
     if(!valor || isNaN(parseInt(valor))) return;
 
-    // Se o alvo for o próprio ADM, injeta direto na memória do celular!
     if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
-        jogador.banco += parseInt(valor);
-        salvarDados(); 
-        atualizarTela(); 
-        atualizarTelaBanco();
-        mostrarNotificacao(`S$ ${valor} injetados no teu próprio Banco!`, "sucesso");
+        jogador.banco += parseInt(valor); salvarDados(); atualizarTela(); atualizarTelaBanco();
+        mostrarNotificacao(`S$ ${valor} injetados no teu prÃ³prio Banco!`, "sucesso");
         document.getElementById('adm-alvo').value = '';
     } else {
-        // Se for outro jogador, manda pra Nuvem
         db.collection("contas_globais").doc(alvo).get().then(doc => {
-            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
             db.collection("contas_globais").doc(alvo).update({ banco: firebase.firestore.FieldValue.increment(parseInt(valor)) })
             .then(() => { mostrarNotificacao(`S$ ${valor} injetados no Banco de ${alvo}!`, "sucesso"); document.getElementById('adm-alvo').value = ''; });
         });
@@ -426,13 +449,11 @@ function admDarNivel() {
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
     
     if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
-        jogador.nivel += 1;
-        salvarDados(); 
-        atualizarTela();
+        jogador.nivel += 1; salvarDados(); atualizarTela();
         mostrarNotificacao("Deste Level Up a ti mesmo!", "ouro");
     } else {
         db.collection("contas_globais").doc(alvo).get().then(doc => {
-            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
             db.collection("contas_globais").doc(alvo).update({ nivel: firebase.firestore.FieldValue.increment(1) })
             .then(() => { mostrarNotificacao(`Deu Level Up em ${alvo}!`, "ouro"); });
         });
@@ -442,17 +463,14 @@ function admDarNivel() {
 function admZerarBanco() {
     let alvo = document.getElementById('adm-alvo').value.trim();
     if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
-    if(confirm(`ATENÇÃO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
+    if(confirm(`ATENÃ‡ÃƒO: Tens a certeza que queres ZERAR todo o dinheiro do banco de ${alvo}?`)) {
         if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
-            jogador.banco = 0;
-            salvarDados(); 
-            atualizarTela(); 
-            atualizarTelaBanco();
-            mostrarNotificacao("Zeraste o teu próprio banco!", "erro");
+            jogador.banco = 0; salvarDados(); atualizarTela(); atualizarTelaBanco();
+            mostrarNotificacao("Zeraste o teu prÃ³prio banco!", "erro");
             document.getElementById('adm-alvo').value = '';
         } else {
             db.collection("contas_globais").doc(alvo).get().then(doc => {
-                if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" não encontrada!`, "erro");
+                if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada!`, "erro");
                 db.collection("contas_globais").doc(alvo).update({ banco: 0 })
                 .then(() => { mostrarNotificacao(`Banco de ${alvo} zerado com sucesso!`, "erro"); document.getElementById('adm-alvo').value = ''; });
             });
@@ -460,6 +478,32 @@ function admZerarBanco() {
     }
 }
 
+function admExcluirConta() {
+    let alvo = document.getElementById('adm-alvo').value.trim();
+    if(!alvo) return mostrarNotificacao("Digita o nome de um jogador!", "info");
+    
+    if (alvo.toLowerCase() === jogador.nome.toLowerCase()) {
+        return mostrarNotificacao("NÃ£o podes apagar a tua prÃ³pria conta por aqui!", "erro");
+    }
+    if (alvo === "BancoCentral_Schnitzel") {
+        return mostrarNotificacao("O Banco Central Ã© imortal!", "erro");
+    }
+
+    if(confirm(`ALERTA VERMELHO: Tens a certeza ABSOLUTA que queres APAGAR a conta "${alvo}" do servidor para sempre?`)) {
+        db.collection("contas_globais").doc(alvo).get().then(doc => {
+            if(!doc.exists) return mostrarNotificacao(`Conta "${alvo}" nÃ£o encontrada na Nuvem!`, "erro");
+            
+            db.collection("contas_globais").doc(alvo).delete()
+            .then(() => { 
+                mostrarNotificacao(`MÃFIA: A conta "${alvo}" foi apagada da existÃªncia!`, "sucesso"); 
+                document.getElementById('adm-alvo').value = ''; 
+            })
+            .catch(e => mostrarNotificacao("Erro ao deletar! " + e.message, "erro"));
+        });
+    }
+}
+
+// --- FUNÃ‡Ã•ES DE APP (CELULAR) ---
 function abrirCelular() { document.getElementById('modal-celular').style.display = 'flex'; abrirApp('app-home'); atualizarTelaBanco(); atualizarMissoesCelular(); atualizarTelaCripto(); }
 function botaoHomeCelular() { let homeAtiva = document.getElementById('app-home').classList.contains('ativa'); if (homeAtiva) { document.getElementById('modal-celular').style.display = 'none'; } else { abrirApp('app-home'); } }
 function abrirApp(idApp) { document.querySelectorAll('.app-tela').forEach(t => t.classList.remove('ativa')); document.getElementById(idApp).classList.add('ativa'); }
@@ -529,6 +573,7 @@ function resgatarPix(index) {
     salvarDados(); atualizarTela(); atualizarTelaBanco(); mostrarNotificacao(`S$ ${pix.valor} resgatados!`, "ouro");
 }
 
+// --- CRIPTO, RENDIMENTO PASSIVO E RECEITA FEDERAL ---
 setInterval(() => {
     let variacao = Math.floor(Math.random() * 41) - 20; 
     valorMercadoCripto += variacao;
@@ -541,33 +586,36 @@ setInterval(() => {
     let data = new Date(); let horas = data.getHours().toString().padStart(2, '0'); let min = data.getMinutes().toString().padStart(2, '0');
     let elHora = document.getElementById('hora-celular'); if(elHora) elHora.innerText = `${horas}:${min}`;
     
-    // RENDIMENTO E RECEITA FEDERAL (RODA A CADA 1 MINUTO)
     let agora = Date.now(); let tempoPassado = agora - jogador.ultimaRenda;
     if (tempoPassado >= 60000 && jogador.banco > 0) {
         let minutos = Math.floor(tempoPassado / 60000); if (minutos > 120) minutos = 120; 
         
-        // 1. Paga o rendimento de 2%
         let rendimento = Math.floor(jogador.banco * (0.02 * minutos));
         jogador.banco += rendimento; 
         jogador.ultimaRenda = agora;
         mostrarNotificacao(`Banco: S$ ${rendimento} de rendimento passivo!`, "ouro");
 
-        // 2. SISTEMA BRASIL (A RECEITA FEDERAL ENTRA EM AÇÃO)
-        if (jogador.banco >= 1000000) {
-            // 15% de chance do Leão atacar neste minuto
-            if (Math.random() <= 0.15) {
-                // Verifica se o jogador tem a defesa (Offshore)
+        if (jogador.nome !== "BancoCentral_Schnitzel" && jogador.banco >= 1000000) {
+            if (Math.random() <= 0.15) { 
                 if (jogador.inventario.includes("offshore")) {
-                    // Consome o item para salvar o dinheiro
                     jogador.inventario = jogador.inventario.filter(item => item !== "offshore");
                     mostrarNotificacao("A Receita Federal investigou-te, mas a tua Conta Offshore salvou-te! Defesa consumida.", "ouro");
                 } else {
-                    // PENHORA 40% DO BANCO SEM DÓ!
                     let valorPenhorado = Math.floor(jogador.banco * 0.40);
                     jogador.banco -= valorPenhorado;
                     
-                    // Mostra o erro do Brasil
-                    mostrarNotificacao(`BEM-VINDO AO BRASIL! A Receita Federal penhorou S$ ${valorPenhorado.toLocaleString('pt-PT')} do teu Banco!`, "erro");
+                    // COLE O LINK DA FOTO DO BCS AQUI NESSA LINHA:
+                    let linkLogoBCS = "COLE_O_LINK_DA_FOTO_DO_BCS_AQUI";
+
+                    db.collection("contas_globais").doc("BancoCentral_Schnitzel").set({
+                        nome: "BancoCentral_Schnitzel", 
+                        banco: firebase.firestore.FieldValue.increment(valorPenhorado),
+                        fortunaTotal: firebase.firestore.FieldValue.increment(valorPenhorado),
+                        avatar: linkLogoBCS, 
+                        nivel: 999 
+                    }, { merge: true });
+
+                    mostrarNotificacao(`A Receita Federal penhorou S$ ${valorPenhorado.toLocaleString('pt-PT')} e enviou para o BCS$!`, "erro");
                 }
             }
         }
@@ -642,37 +690,4 @@ window.onload = function() {
     if (tempoOfflineBanco >= 60000 && jogador.banco > 0) {
         let minutosOff = Math.floor(tempoOfflineBanco / 60000); if (minutosOff > 120) minutosOff = 120; 
         let rendimentoOff = Math.floor(jogador.banco * (0.02 * minutosOff));
-        jogador.banco += rendimentoOff; jogador.ultimaRenda = agora;
-        mostrarNotificacao(`Rendimento Offline: + S$ ${rendimentoOff}`, "ouro");
-    }
-
-    if(jogador.nome !== "Visitante") atualizarBancoDeDados();
-    verificarADM();
-
-    db.collection("contas_globais").orderBy("fortunaTotal", "desc").limit(50).onSnapshot((querySnapshot) => {
-        rankingGlobal = [];
-        querySnapshot.forEach((doc) => { rankingGlobal.push(doc.data()); });
-        if (document.getElementById('tela-ranking').classList.contains('ativa')) gerarRanking();
-    });
-
-    if(jogador.nome !== "Visitante") {
-        db.collection("contas_globais").doc(jogador.nome).onSnapshot((docSnapshot) => {
-            if(docSnapshot.exists) {
-                let nuvem = docSnapshot.data();
-                let atualizou = false;
-                
-                if (nuvem.pixPendentes && JSON.stringify(nuvem.pixPendentes) !== JSON.stringify(jogador.pixPendentes)) {
-                    if (nuvem.pixPendentes.length > jogador.pixPendentes.length) mostrarNotificacao("Acabaste de receber um PIX Global!", "ouro");
-                    jogador.pixPendentes = nuvem.pixPendentes; atualizou = true;
-                }
-                
-                if (nuvem.banco > jogador.banco) { jogador.banco = nuvem.banco; atualizou = true; }
-                
-                if(atualizou) {
-                    localStorage.setItem('schnitzel_save_atual', JSON.stringify(jogador));
-                    atualizarTela(); atualizarTelaBanco(); verificarNotificacoesCelular();
-                }
-            }
-        });
-    }
-};
+        jogador.
